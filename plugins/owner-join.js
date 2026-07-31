@@ -5,7 +5,7 @@ let linkRegex = /https:\/\/chat\.whatsapp\.com\/([0-9A-Za-z]{20,24})/i;
 let handler = async (m, { conn, text, isOwner }) => {
   const botname = getBotConfig(conn, 'botname')
 
-    if (!text) return m.reply(`🍓 *AY NOOO* 🍓
+    if (!text) return m.reply(`💖 *AY NOOO* 💖
 
 ╭─「 *INSTRUCCION* 」─╮
 │ *Debes enviar una invitacion para que*
@@ -24,13 +24,13 @@ let handler = async (m, { conn, text, isOwner }) => {
 
     if (isOwner) {
         await conn.groupAcceptInvite(code)
-            .then(res => m.reply(`🍓 *ACCESO CONCEDIDO* 🍓
+            .then(res => m.reply(`💖 *ACCESO CONCEDIDO* 💖
 
 ╭─「 *REPORTE* 」─╮
 │ *Me he unido exitosamente al grupo*
 ╰─────────────
 
-> *Hola fresitas* 😘`))
+> *Hola dulzuras* 😘🌸`))
             .catch(err => m.reply(`❌ *ERROR CRITICO* ❌
 
 ╭─「 *DETALLE* 」─╮
@@ -39,19 +39,19 @@ let handler = async (m, { conn, text, isOwner }) => {
 
 > *Verifica que el link sea valido* 😿`));
     } else {
-        let message = `🍓 *SOLICITUD DE INGRESO* 🍓
+        let message = `💖 *SOLICITUD DE INGRESO* 💖
 
 ╭─「 *DETALLE* 」─╮
 │ *ENLACE* : ${text}
 │ *POR* : @${m.sender.split('@')[0]}
 ╰─────────────
 
-> *El owner debe aprobar* 👑`;
-        await conn.sendMessage(`${suittag}` + '@s.whatsapp.net', { text: message, mentions: [m.sender] }, { quoted: m });
-        m.reply(`🍓 *SOLICITUD ENVIADA* 🍓
+> *La owner debe aprobar* 👑`;
+        await conn.sendMessage(`${global.owner[0][0]}` + '@s.whatsapp.net', { text: message, mentions: [m.sender] }, { quoted: m });
+        m.reply(`💖 *SOLICITUD ENVIADA* 💖
 
 ╭─「 *ESTADO* 」─╮
-│ *El link del grupo ha sido enviado al owner*
+│ *El link del grupo ha sido enviado a la owner*
 ╰─────────────
 
 > *Espera a que lo apruebe* ✨`, null, { mentions: [m.sender] });
