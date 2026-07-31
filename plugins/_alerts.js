@@ -30,7 +30,7 @@ handler.before = async function (m, { conn }) {
         }
     }
 
-    // 1. FOTO DEL USER > 2. FOTO DEL GRUPO > 3. DEFAULT
+    // 1. FOTO DEL USER > 2. FOTO DEL GRUPO > 3. DEFAULT FRESITA
     let banner;
     try {
         banner = await conn.profilePictureUrl(userss, 'image')
@@ -38,43 +38,43 @@ handler.before = async function (m, { conn }) {
         try {
             banner = await conn.profilePictureUrl(m.chat, 'image')
         } catch {
-            banner = 'https://i.imgur.com/2wzZ3eB.png'
+            banner = 'https://files.evogb.win/qLamZD.jpg'
         }
     }
 
-    // DISEÑO CYBER PROMOTE
+    // DISEÑO FRESITA PROMOTE 🍓
     const admingp = `
-╔═══「 👑 𝐀𝐒𝐂𝐄𝐍𝐒𝐎 」═══╗
-║
-║ 𝗧𝗔𝗥𝗚𝗘𝗧 : ${userTag}
-║ 𝗦𝗧𝗔𝗧𝗨𝗦 : ✅ RANGO ASIGNADO
-║ 𝗕𝗬 : ${adminTag}
-║
-╠═══「 𝗣𝗘𝗥𝗠𝗜𝗦𝗢𝗦 」═══╣
-║ [✓] Expulsar / Promover
-║ [✓] Editar Info Grupo
-║ [✓] Cambiar Config
-║ [✓] Anuncios
-╚═══════════╝
+╭───「 🍓 *ASCENSO DULCE* 」───╮
+│
+│ *TARGET* : ${userTag}
+│ *ESTADO* : ✅ *CORONADA COMO ADMIN*
+│ *POR* : ${adminTag}
+│
+├─「 *NUEVOS PODERES* 」─
+│ [✓] Expulsar y Promover
+│ [✓] Editar info del grupo
+│ [✓] Cambiar ajustes
+│ [✓] Mandar anuncios
+╰─────────────
 
-> 𝙴𝚕 𝚙𝚘𝚍𝚎𝚛 𝚌𝚘𝚗𝚕𝚎𝚟𝚊 𝚛𝚎𝚜𝚙𝚘𝚗𝚜𝚊𝚋𝚒𝚕𝚒𝚍𝚊𝚍
+> *Con grandes poderes vienen grandes fresitas* 🍓
 `.trim()
 
-    // DISEÑO CYBER DEMOTE
+    // DISEÑO FRESITA DEMOTE 🍓
     const noadmingp = `
-╔═══「 🔒 𝐃𝐄𝐒𝐂𝐄𝐍𝐒𝐎 」═══╗
-║
-║ 𝗧𝗔𝗥𝗚𝗘𝗧 : ${userTag}
-║ 𝗦𝗧𝗔𝗧𝗨𝗦 : ❌ RANGO REVOCADO
-║ 𝗕𝗬 : ${adminTag}
-║
-╠═══「 𝗔𝗖𝗘𝗦𝗢 𝗗𝗘𝗡𝗘𝗚𝗔𝗗𝗢 」═══╣
-║ [✗] Sin permisos de admin
-║ [✗] Comandos bloqueados
-║ [✗] Solo miembro
-╚═════════╝
+╭───「 🔒 *DESCENSO SUAVE* 」───╮
+│
+│ *TARGET* : ${userTag}
+│ *ESTADO* : ❌ *RANGO QUITADO*
+│ *POR* : ${adminTag}
+│
+├─「 *ACCESO DENEGADO* 」─
+│ [✗] Ya no es admin
+│ [✗] Comandos bloqueados
+│ [✗] Solo miembra del grupo
+╰─────────────
 
-> 𝚂𝚒𝚗 𝚛𝚊𝚗𝚐𝚘, 𝚜𝚒𝚗 𝚙𝚘𝚍𝚎𝚛
+> *A veces toca volver a ser fresita normal* 🍓
 `.trim()
 
     // LIMPIAR SESSION SI KICKEAN BOT
@@ -95,7 +95,7 @@ handler.before = async function (m, { conn }) {
         await conn.sendMessage(m.chat, {
             image: { url: banner },
             caption: admingp,
-       ...context
+      ...context
         }, { quoted: null })
         return
     }
@@ -105,7 +105,7 @@ handler.before = async function (m, { conn }) {
         await conn.sendMessage(m.chat, {
             image: { url: banner },
             caption: noadmingp,
-       ...context
+      ...context
         }, { quoted: null })
         return
     }
