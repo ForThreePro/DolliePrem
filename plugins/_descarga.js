@@ -3,26 +3,27 @@ import fetch from "node-fetch"
 import yts from 'yt-search'
 
 let handler = async (m, { conn, text, command, usedPrefix }) => {
-    if (!text) return conn.reply(m.chat, `╔═══「 ⚡ 𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧 」═══╗
-║
-║ 𝗠𝗢𝗗𝗨𝗟𝗢 : 𝗗𝗘𝗦𝗖𝗔𝗥𝗚𝗔𝗦
-║ 𝗘𝗦𝗧𝗔𝗗𝗢 : 𝗢𝗡𝗟𝗜𝗡𝗘
-║
-╠═══「 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 」═══╣
-║ [1].play nombre → Audio
-║ [2].play2 nombre → Video
-║ [3].ytmp3 link → Audio Directo
-║ [4].ytmp4 link → Video 720p
-║
-╠═══「 𝗦𝗢𝗖𝗜𝗔𝗟 」═══╣
-║ [5].spotify nombre → Audio
-║ [6].tiktok link → Video
-║ [7].tiktoksearch txt → Buscar
-║ [8].ig link → Instagram
-║ [9].fb link → Facebook
-║ [10].mediafire link → Archivo
-║
-╚═══「 𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬 𝗖𝗬𝗕𝗘𝗥 𝗔𝗜 」═══╝`, m)
+    if (!text) return conn.reply(m.chat, `╭───「 🍓 *FRESITA BOT* 」───╮
+│
+│ *MODULO* : Descargas Dulces
+│ *ESTADO* : Online y coqueta 😘
+│
+├─「 *YOUTUBE* 」
+│ [1] *.play* nombre → Audio
+│ [2] *.play2* nombre → Video
+│ [3] *.ytmp3* link → Audio Directo
+│ [4] *.ytmp4* link → Video 720p
+│
+├─「 *SOCIAL* 」
+│ [5] *.spotify* nombre → Audio
+│ [6] *.tiktok* link → Video
+│ [7] *.tiktoksearch* txt → Buscar
+│ [8] *.ig* link → Instagram
+│ [9] *.fb* link → Facebook
+│ [10] *.mediafire* link → Archivo
+│
+╰─────────────
+> *Pídeme lo que quieras y te lo bajo fresita* 🍓`, m)
 
     await m.react('⏳')
     const keyEvo = Buffer.from('ZWt1c2Fz', 'base64').toString('utf-8').split('').reverse().join('')
@@ -40,21 +41,22 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 
             let isVideo = command === 'play2'
             let apiUrl = isVideo
-            ? `https://api.evogb.org/dl/ytmp4?url=${encodeURIComponent(vid.url)}&quality=720&key=${keySasuke}`
+           ? `https://api.evogb.org/dl/ytmp4?url=${encodeURIComponent(vid.url)}&quality=720&key=${keySasuke}`
                 : `https://api.evogb.org/dl/ytmp3?url=${encodeURIComponent(vid.url)}&key=${keySasuke}`
 
             let json = await (await fetch(apiUrl)).json()
             if (!json.status) throw 'YT_DL_ERROR'
 
-            let cap = `╔═══「 ⚡ 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 ${isVideo? '𝗩𝗜𝗗𝗘𝗢' : '𝗔𝗨𝗗𝗜𝗢'} 」═══╗
-║
-║ 𝗧𝗜𝗧𝗨𝗟𝗢 : ${vid.title}
-║ 𝗗𝗨𝗥𝗔𝗖𝗜𝗢𝗡 : ${vid.timestamp}
-║ 𝗔𝗨𝗧𝗢𝗥 : ${vid.author.name}
-║ 𝗩𝗜𝗦𝗧𝗔𝗦 : ${vid.views.toLocaleString()}
-║ 𝗙𝗢𝗥𝗠𝗔𝗧𝗢 : ${isVideo? 'MP4 720p' : 'MP3 320kbps'}
-║
-╚═══「 𝗘𝗫𝗧𝗥𝗔𝗬𝗘𝗡𝗗𝗢 𝗗𝗔𝗧𝗢𝗦 」═══╝`
+            let cap = `╭───「 🍓 *YOUTUBE ${isVideo? 'VIDEO' : 'AUDIO'}* 」───╮
+│
+│ *TITULO* : ${vid.title}
+│ *DURACION* : ${vid.timestamp}
+│ *AUTOR* : ${vid.author.name}
+│ *VISTAS* : ${vid.views.toLocaleString()}
+│ *FORMATO* : ${isVideo? 'MP4 720p' : 'MP3 320kbps'}
+│
+╰─────────────
+> *Listo fresita, aquí tienes tu musiquita* 🍓`
 
             await conn.sendMessage(m.chat, { image: { url: vid.thumbnail }, caption: cap }, { quoted: m })
             await conn.sendMessage(m.chat, {
@@ -75,20 +77,21 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 
             let isVideo = command === 'ytmp4'
             let apiUrl = isVideo
-             ? `https://api.evogb.org/dl/ytmp4?url=${encodeURIComponent(vid.url)}&quality=720&key=${keySasuke}`
+            ? `https://api.evogb.org/dl/ytmp4?url=${encodeURIComponent(vid.url)}&quality=720&key=${keySasuke}`
                 : `https://api.evogb.org/dl/ytmp3?url=${encodeURIComponent(vid.url)}&key=${keySasuke}`
 
             let json = await (await fetch(apiUrl)).json()
             if (!json.status) throw 'YT_DL_ERROR'
 
-            let cap = `╔═══「 ⚡ 𝗬𝗧 ${isVideo? '𝗩𝗜𝗗𝗘𝗢' : '𝗔𝗨𝗗𝗜𝗢'} 𝗗𝗜𝗥𝗘𝗖𝗧𝗢 」═══╗
-║
-║ 𝗧𝗜𝗧𝗨𝗟𝗢 : ${vid.title}
-║ 𝗙𝗢𝗥𝗠𝗔𝗧𝗢 : ${isVideo? 'MP4 720p' : 'MP3'}
-║ 𝗗𝗨𝗥𝗔𝗖𝗜𝗢𝗡 : ${vid.timestamp}
-║ 𝗩𝗜𝗦𝗧𝗔𝗦 : ${vid.views.toLocaleString()}
-║
-╚═══「 𝗗𝗘𝗦𝗖𝗔𝗥𝗚𝗔 𝗜𝗡𝗜𝗖𝗜𝗔𝗗𝗔 」═══╝`
+            let cap = `╭───「 🍓 *YT ${isVideo? 'VIDEO' : 'AUDIO'} DIRECTO* 」───╮
+│
+│ *TITULO* : ${vid.title}
+│ *FORMATO* : ${isVideo? 'MP4 720p' : 'MP3'}
+│ *DURACION* : ${vid.timestamp}
+│ *VISTAS* : ${vid.views.toLocaleString()}
+│
+╰─────────────
+> *Descarga iniciada, no te desesperes* 😘`
 
             await conn.sendMessage(m.chat, { image: { url: vid.thumbnail }, caption: cap }, { quoted: m })
             await conn.sendMessage(m.chat, {
@@ -113,15 +116,16 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
             let dlData = await dlRes.json()
             if (!dlData.status) throw 'SP_DL_ERROR'
 
-            let cap = `╔═══「 🎵 𝗦𝗣𝗢𝗧𝗜𝗙𝗬 」═══╗
-║
-║ 𝗧𝗜𝗧𝗨𝗟𝗢 : ${dlData.data.name}
-║ 𝗔𝗥𝗧𝗜𝗦𝗧𝗔 : ${dlData.data.artist}
-║ 𝗔𝗟𝗕𝗨𝗠 : ${dlData.data.album}
-║ 𝗗𝗨𝗥𝗔𝗖𝗜𝗢𝗡 : ${dlData.data.duration}
-║ 𝗔𝗡𝗢 : ${dlData.data.year}
-║
-╚═══「 𝗠𝗨𝗦𝗜𝗖𝗔 𝗣𝗥𝗢𝗖𝗘𝗦𝗔𝗗𝗔 」═══╝`
+            let cap = `╭───「 🎵 *SPOTIFY* 」───╮
+│
+│ *TITULO* : ${dlData.data.name}
+│ *ARTISTA* : ${dlData.data.artist}
+│ *ALBUM* : ${dlData.data.album}
+│ *DURACION* : ${dlData.data.duration}
+│ *ANO* : ${dlData.data.year}
+│
+╰─────────────
+> *Para que lo escuches bien rico* 🍓`
 
             await conn.sendMessage(m.chat, { image: { url: dlData.data.image }, caption: cap }, { quoted: m })
             await conn.sendMessage(m.chat, { audio: { url: dlData.data.url }, mimetype: 'audio/mpeg', fileName: `${dlData.data.name}.mp3` }, { quoted: m })
@@ -135,26 +139,28 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
                 let video = res.data[0]
                 if (!video) throw 'TT_NOT_FOUND'
 
-                let caption = `╔═══「 ⚡ 𝗧𝗜𝗞𝗧𝗢𝗞 𝗦𝗘𝗔𝗥𝗖𝗛 」═══╗
-║
-║ 𝗧𝗜𝗧𝗨𝗟𝗢 : ${video.title}
-║ 𝗔𝗨𝗧𝗢𝗥 : ${video.author.nickname}
-║ 𝗩𝗜𝗦𝗧𝗔𝗦 : ${video.play_count.toLocaleString()}
-║ 𝗟𝗜𝗞𝗘𝗦 : ${video.digg_count.toLocaleString()}
-║
-╚═══「 𝗩𝗜𝗗𝗘𝗢 𝗘𝗡𝗖𝗢𝗡𝗧𝗥𝗔𝗗𝗢 」═══╝`
+                let caption = `╭───「 🍓 *TIKTOK SEARCH* 」───╮
+│
+│ *TITULO* : ${video.title}
+│ *AUTOR* : ${video.author.nickname}
+│ *VISTAS* : ${video.play_count.toLocaleString()}
+│ *LIKES* : ${video.digg_count.toLocaleString()}
+│
+╰─────────────
+> *Encontré esto para ti* 😘`
                 await conn.sendFile(m.chat, video.dl, 'tiktok.mp4', caption, m)
             } else {
                 let res = await (await fetch(`https://api.evogb.org/dl/tiktok?url=${text}&key=${keySasuke}`)).json()
                 let data = res.data
                 if (!data) throw 'TT_DL_ERROR'
 
-                let caption = `╔═══「 ⚡ 𝗧𝗜𝗞𝗧𝗢𝗞 𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗 」═══╗
-║
-║ 𝗧𝗜𝗧𝗨𝗟𝗢 : ${data.title}
-║ 𝗔𝗨𝗧𝗢𝗥 : ${data.author.nickname}
-║
-╚═══「 𝗗𝗘𝗦𝗖𝗔𝗥𝗚𝗔 𝗖𝗢𝗠𝗣𝗟𝗘𝗧𝗔 」═══╝`
+                let caption = `╭───「 🍓 *TIKTOK DOWNLOAD* 」───╮
+│
+│ *TITULO* : ${data.title}
+│ *AUTOR* : ${data.author.nickname}
+│
+╰─────────────
+> *Aquí tienes tu tiktok fresita* 🍓`
                 await conn.sendFile(m.chat, Array.isArray(data.dl)? data.dl[0] : data.dl, 'tiktok.mp4', caption, m)
             }
             return await m.react('✅')
@@ -165,14 +171,15 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
             const { data } = await axios.get(`https://api.evogb.org/dl/instagram?url=${encodeURIComponent(text)}&key=${keyEvo}`)
             if (!data.status) throw 'IG_ERROR'
             let media = data.data[0]
-            let type = media.type === 'video'? '𝗩𝗜𝗗𝗘𝗢' : '𝗜𝗠𝗔𝗚𝗘𝗡'
+            let type = media.type === 'video'? 'VIDEO' : 'IMAGEN'
 
-            let cap = `╔═══「 📸 𝗜𝗡𝗦𝗧𝗔𝗚𝗥𝗔𝗠 」═══╗
-║
-║ 𝗧𝗜𝗣𝗢 : ${type}
-║ 𝗘𝗦𝗧𝗔𝗗𝗢 : 𝗘𝗡𝗩𝗜𝗔𝗡𝗗𝗢
-║
-╚═══「 𝗖𝗢𝗡𝗧𝗘𝗡𝗜𝗗𝗢 𝗖𝗔𝗣𝗧𝗨𝗥𝗔𝗗𝗢 」═══╝`
+            let cap = `╭───「 📸 *INSTAGRAM* 」───╮
+│
+│ *TIPO* : ${type}
+│ *ESTADO* : Enviando
+│
+╰─────────────
+> *Te lo paso directo al chat* 😘`
 
             await conn.sendMessage(m.chat, {
                 [media.type === 'video'? 'video' : 'image']: { url: media.url },
@@ -188,12 +195,13 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
             if (!data.status) throw 'FB_ERROR'
             let video = data.resultados[0]
 
-            let cap = `╔═══「 📘 𝗙𝗔𝗖𝗘𝗕𝗢𝗞 」═══╗
-║
-║ 𝗖𝗔𝗟𝗜𝗗𝗔𝗗 : ${video.calidad || '𝗛𝗗'}
-║ 𝗘𝗦𝗧𝗔𝗗𝗢 : 𝗘𝗡𝗩𝗜𝗔𝗡𝗗𝗢
-║
-╚═══「 𝗩𝗜𝗗𝗘𝗢 𝗘𝗫𝗧𝗥𝗔𝗜𝗗𝗢 」═══╝`
+            let cap = `╭───「 📘 *FACEBOOK* 」───╮
+│
+│ *CALIDAD* : ${video.calidad || 'HD'}
+│ *ESTADO* : Enviando
+│
+╰─────────────
+> *Video listo para ti* 🍓`
 
             await conn.sendMessage(m.chat, {
                 video: { url: video.url },
@@ -210,13 +218,14 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
             if (!result.status ||!result.data) throw 'MF_ERROR'
 
             let { name, size, date, dl } = result.data
-            let caption = `╔═══「 📦 𝗠𝗘𝗗𝗜𝗔𝗙𝗜𝗥𝗘 」═══╗
-║
-║ 𝗡𝗢𝗠𝗕𝗥𝗘 : ${name}
-║ 𝗧𝗔𝗠𝗔𝗡𝗢 : ${size}
-║ 𝗙𝗘𝗖𝗛𝗔 : ${date}
-║
-╚═══「 𝗔𝗥𝗖𝗛𝗜𝗩𝗢 𝗘𝗫𝗧𝗥𝗔𝗜𝗗𝗢 」═══╝`
+            let caption = `╭───「 📦 *MEDIAFIRE* 」───╮
+│
+│ *NOMBRE* : ${name}
+│ *TAMANO* : ${size}
+│ *FECHA* : ${date}
+│
+╰─────────────
+> *Archivo extraido con exito* 🍓`
 
             await conn.sendFile(m.chat, dl, name, caption, m)
             return await m.react('✅')
@@ -226,22 +235,23 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
         console.error(e)
         await m.react('❌')
         let msgs = {
-            YT_NOT_FOUND: '𝗡𝗢 𝗦𝗘 𝗘𝗡𝗖𝗢𝗡𝗧𝗥𝗢 𝗘𝗟 𝗩𝗜𝗗𝗘𝗢',
-            YT_DL_ERROR: '𝗘𝗥𝗥𝗢𝗥 𝗘𝗡 𝗬𝗢𝗨𝗧𝗨𝗕𝗘',
-            SP_NOT_FOUND: `𝗡𝗢 𝗛𝗔𝗬 𝗥𝗘𝗦𝗨𝗟𝗧𝗔𝗗𝗢𝗦: ${text}`,
-            SP_DL_ERROR: '𝗘𝗥𝗢𝗥 𝗘𝗡 𝗦𝗣𝗢𝗧𝗜𝗙𝗬',
-            TT_NOT_FOUND: '𝗡𝗢 𝗛𝗔𝗬 𝗥𝗘𝗦𝗨𝗟𝗧𝗔𝗗𝗢𝗦 𝗧𝗧',
-            TT_DL_ERROR: '𝗘𝗥𝗢𝗥 𝗘𝗡 𝗧𝗜𝗞𝗧𝗢𝗞',
-            IG_ERROR: '𝗘𝗥𝗥𝗢𝗥 𝗘𝗡 𝗜𝗡𝗦𝗧𝗔𝗚𝗥𝗔𝗠',
-            FB_ERROR: '𝗘𝗥𝗢𝗥 𝗘𝗡 𝗙𝗔𝗖𝗘𝗕𝗢𝗞',
-            MF_ERROR: '𝗔𝗥𝗖𝗛𝗜𝗩𝗢 𝗡𝗢 𝗘𝗡𝗖𝗢𝗡𝗧𝗥𝗔𝗗𝗢'
+            YT_NOT_FOUND: 'No se encontro el video',
+            YT_DL_ERROR: 'Error en youtube',
+            SP_NOT_FOUND: `No hay resultados: ${text}`,
+            SP_DL_ERROR: 'Error en spotify',
+            TT_NOT_FOUND: 'No hay resultados tt',
+            TT_DL_ERROR: 'Error en tiktok',
+            IG_ERROR: 'Error en instagram',
+            FB_ERROR: 'Error en facebook',
+            MF_ERROR: 'Archivo no encontrado'
         }
-        m.reply(`╔═══「 ❌ 𝗘𝗥𝗢𝗥 𝗗𝗘 𝗦𝗜𝗦𝗧𝗘𝗠𝗔 」═══╗
-║
-║ 𝗗𝗘𝗧𝗔𝗟𝗘 : ${msgs[e] || '𝗘𝗥𝗥𝗢𝗥 𝗜𝗡𝗘𝗦𝗣𝗘𝗥𝗔𝗗𝗢'}
-║ 𝗔𝗖𝗜𝗢𝗡 : 𝗩𝗘𝗥𝗜𝗙𝗜𝗖𝗔𝗥 𝗘𝗡𝗟𝗔𝗖𝗘
-║
-╚═══「 𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧 」═══╝`)
+        m.reply(`╭───「 ❌ *ERROR* 」───╮
+│
+│ *DETALLE* : ${msgs[e] || 'Error inesperado'}
+│ *ACCION* : Verifica el enlace
+│
+╰─────────────
+> *Ay nooo, algo salio mal* 😿`)
     }
 }
 
