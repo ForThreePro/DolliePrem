@@ -3,14 +3,14 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
   let user = texto.length > 0? texto[0] : (m.quoted? await m.quoted.sender : false);
 
   if (!user) {
-    return conn.reply(m.chat, `🍓 *AY NOOO* 🍓
+    return conn.reply(m.chat, `💖 *AY NOOO* 💖
 
 ╭─「 *INSTRUCCION* 」─╮
-│ *Menciona o cita al usuario*
+│ *Menciona o cita a la usuaria*
 │ *Ejemplo* :.${command} @usuario
 ╰─────────────
 
-> *Dime a quien quieres sacar fresita* 😘`, m);
+> *Dime a quien quieres sacar dulzura* 😘`, m);
   }
 
   const groupInfo = await conn.groupMetadata(m.chat);
@@ -34,14 +34,14 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
 │ *No puedo expulsarme a mi misma*
 ╰─────────────
 
-> *Yo me quedo aquí* 😤`, m);
+> *Yo me quedo aquí cuidándolas* 😤`, m);
   }
 
   if (user === ownerGroup) {
     return conn.reply(m.chat, `⛔ *ACCESO DENEGADO* ⛔
 
 ╭─「 *SEGURIDAD* 」─╮
-│ *No se puede expulsar al creador*
+│ *No se puede expulsar a la creadora*
 ╰─────────────`, m);
   }
 
@@ -49,16 +49,16 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
     return conn.reply(m.chat, `⛔ *ACCESO DENEGADO* ⛔
 
 ╭─「 *SEGURIDAD* 」─╮
-│ *No se puede expulsar al owner*
+│ *No se puede expulsar a la owner*
 ╰─────────────
 
-> *Ese es intocable* 🍓`, m);
+> *Ella es intocable* 👑`, m);
   }
 
   const participant = groupInfo.participants.find(p => p.jid === user);
 
   if (!participant) {
-    return conn.reply(m.chat, `🍓 *AVISO* 🍓
+    return conn.reply(m.chat, `💖 *AVISO* 💖
 
 ╭─「 *ESTADO* 」─╮
 │ ${targetName} *ya no esta en el grupo*
@@ -67,15 +67,15 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
 
   await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
 
-  await conn.reply(m.chat, `🍓 *EXPULSION EJECUTADA* 🍓
+  await conn.reply(m.chat, `💖 *EXPULSION EJECUTADA* 💖
 
 ╭─「 *REPORTE* 」─╮
-│ *USUARIO* : ${targetName}
-│ *ACCION* : Expulsado
+│ *USUARIA* : ${targetName}
+│ *ACCION* : Expulsada
 │ *POR* : @${m.sender.split('@')[0]}
 ╰─────────────
 
-> *Adios fresita* 👋 La puerta se cerro`, m, { mentions: [m.sender] });
+> *Adios dulzura* 👋 La puerta se cerro 🌸`, m, { mentions: [m.sender] });
 };
 
 handler.help = ['kick'];
