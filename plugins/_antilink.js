@@ -18,7 +18,7 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
             if (m.text.includes(linkThisGroup)) return !0;
         }
 
-        // AVISO DOLLIE 💖
+        // USA FOTO → PONEMOS DOLLIE
         await conn.sendMessage(m.chat, { 
             image: { url: 'https://files.evogb.win/7MjPua.jpg' },
             caption: `
@@ -35,7 +35,7 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
             mentions: [m.sender] 
         }, { quoted: m });
 
-        // SI NO ES ADMIN EL BOT
+        // USA FOTO → PONEMOS DOLLIE
         if (!isBotAdmin) {
             return conn.sendMessage(m.chat, { 
                 image: { url: 'https://files.evogb.win/7MjPua.jpg' },
@@ -46,14 +46,12 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
 │ *No puedo eliminarla* 😿
 │ *Díganle a una admin que me suba de rango*
 │ *Quiero cuidar el grupo bien bonito*
-╰─────────────
-
-> *Por favor denme coronita* 👑`.trim(), 
+╰─────────────`.trim(), 
                 mentions: groupAdmins.map(v => v.id) 
             }, { quoted: m });
         }
 
-        // ELIMINAR Y KICK
+        // ELIMINAR Y KICK - NO USA FOTO
         if (isBotAdmin) {
             await conn.sendMessage(m.chat, { delete: m.key });
             await conn.groupParticipantsUpdate(m.chat, [m.sender], "remove");
