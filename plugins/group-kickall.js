@@ -4,47 +4,47 @@ var handler = async (m, { conn, participants }) => {
   const ownerBot = globalThis.owner[0][0] + '@s.whatsapp.net';
 
   let targets = participants
-  .map(p => p.id)
-  .filter(id => id!== conn.user.jid)
-  .filter(id => id!== ownerGroup)
-  .filter(id => id!== ownerBot)
-  .filter(id => {
+ .map(p => p.id)
+ .filter(id => id!== conn.user.jid)
+ .filter(id => id!== ownerGroup)
+ .filter(id => id!== ownerBot)
+ .filter(id => {
       const isAdmin = participants.find(p => p.id === id)?.admin
       return!isAdmin // No expulsa admins
     });
 
   if (!targets.length) {
-    return conn.reply(m.chat, `🍓 *AVISO* 🍓
+    return conn.reply(m.chat, `💖 *AVISO* 💖
 
 ╭─「 *ESTADO* 」─╮
-│ *No hay usuarios validos para expulsar*
+│ *No hay usuarias validas para expulsar*
 ╰─────────────
 
-> *Todo esta limpio fresita* ✨`, m);
+> *Todo esta limpio dulzura* ✨`, m);
   }
 
   // Mensaje de advertencia antes de ejecutar
-  await conn.reply(m.chat, `🍓 *EJECUTANDO PROTOCOLO* 🍓
+  await conn.reply(m.chat, `💖 *EJECUTANDO PROTOCOLO* 💖
 
-╭─「 *KICKALL* 」─╮
+╭─「 *LIMPIEZA* 」─╮
 │ *OBJETIVOS* : ${targets.length}
 │ *ESTADO* : Eliminando...
-│ *AUTOR* : @${m.sender.split('@')[0]}
+│ *AUTORA* : @${m.sender.split('@')[0]}
 ╰─────────────
 
 > *Iniciando limpieza del grupo* 🧹`, m, { mentions: [m.sender] });
 
   await conn.groupParticipantsUpdate(m.chat, targets, 'remove');
 
-  await conn.reply(m.chat, `🍓 *PROTOCOLO COMPLETADO* 🍓
+  await conn.reply(m.chat, `💖 *PROTOCOLO COMPLETADO* 💖
 
 ╭─「 *REPORTE* 」─╮
-│ *EXPULSADOS* : ${targets.length}
+│ *EXPULSADAS* : ${targets.length}
 │ *ESTADO* : Grupo limpio
 │ *POR* : @${m.sender.split('@')[0]}
 ╰─────────────
 
-> *El grupo ha sido purgado* 😤`, m, { mentions: [m.sender] });
+> *El grupo ha sido purificado* 😤🌸`, m, { mentions: [m.sender] });
 };
 
 handler.help = ['kickall'];
