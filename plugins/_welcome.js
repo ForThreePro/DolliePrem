@@ -20,10 +20,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
     const actionText = {
         [WAMessageStubType.GROUP_PARTICIPANT_ADD]:
-            actor? `*Reclutado por* @${actor.split('@')[0]}` : '*Ingresó solita*',
+            actor? `*Reclutada por* @${actor.split('@')[0]}` : '*Ingresó solita*',
 
         [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]:
-            actor? `*Eliminado por* @${actor.split('@')[0]}` : '*Expulsado del grupo*',
+            actor? `*Eliminada por* @${actor.split('@')[0]}` : '*Expulsada del grupo*',
 
         [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]:
             '*Se fue del grupo*'
@@ -31,13 +31,13 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
     const format = (text) => {
         return text
-       .replace('@user', `@${target.split('@')[0]}`)
-       .replace('@name', targetName)
-       .replace('@group', groupMetadata.subject)
-       .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripcion')
-       .replace('%users', memberCount)
-       .replace('@action', actionText[m.messageStubType] || '')
-       .replace('@date', new Date().toLocaleString('es-PE'));
+      .replace('@user', `@${target.split('@')[0]}`)
+      .replace('@name', targetName)
+      .replace('@group', groupMetadata.subject)
+      .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripcion')
+      .replace('%users', memberCount)
+      .replace('@action', actionText[m.messageStubType] || '')
+      .replace('@date', new Date().toLocaleString('es-PE'));
     };
 
     // DETECTAR SI TIENE FOTO O NO
@@ -45,41 +45,45 @@ export async function before(m, { conn, participants, groupMetadata }) {
     try {
         ppUrl = await conn.profilePictureUrl(target, 'image');
     } catch {
-        // Si no tiene foto, usa tu banner fresita
-        ppUrl = 'https://files.evogb.win/qLamZD.jpg'
+        // Si no tiene foto, usa tu banner dollie
+        ppUrl = 'https://files.evogb.win/7MjPua.jpg'
     }
 
     const welcome = format(`
-╭───「 🍓 *BIENVENIDA FRESA* 」───╮
-│
+💖 *BIENVENIDA DULZURA* 💖
+
+╭─「 *BIENVENIDA* 」─╮
 │ *NOMBRE* : @name
 │ *GRUPO* : @group
 │
 │ *ESTADO* : @action
-│
+╰─────────────
+
 ├─「 *INFO DEL GRUPO* 」─
 │ 📜 *DESC* : @desc
 │ 👥 *MIEMBROS* : %users
-│ ⚠️ *RECUERDA* : Lee las reglas y portate bien
+│ ⚠️ *RECUERDA* : Lee las reglas y portate bien dulzura
 ╰─────────────
 
-> *Bienvenida fresita nueva* 😘 No hagas travesuras
+> *Bienvenida a casa* 😘 No hagas travesuras 🌸
 `.trim());
 
     const bye = format(`
-╭───「 🍓 *DESPEDIDA* 」───╮
-│
+💖 *DESPEDIDA* 💖
+
+╭─「 *REPORTE* 」─╮
 │ *NOMBRE* : @name
 │ *GRUPO* : @group
 │
 │ *ESTADO* : @action
-│
-├─「 *REPORTE* 」─
+╰─────────────
+
+├─「 *DETALLE* 」─
 │ 👥 *MIEMBROS ACTUALES* : %users
 │ 🕐 *SALIDA* : @date
 ╰─────────────
 
-> *Se nos fue una fresita* 😿 Pero aquí seguimos
+> *Se nos fue una dulzura* 😿 Pero aquí seguimos esperándote 🌷
 `.trim());
 
     const mentions = [target];
@@ -96,7 +100,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
         await conn.sendMessage(m.chat, {
             image: { url: ppUrl },
             caption: welcome,
-       ...context
+      ...context
         });
     }
 
@@ -104,7 +108,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
         await conn.sendMessage(m.chat, {
             image: { url: ppUrl },
             caption: bye,
-       ...context
+      ...context
         });
     }
 }
