@@ -3,14 +3,14 @@ var handler = async (m, { conn, args }) => {
 let group = m.chat
 let link = 'https://chat.whatsapp.com/' + await conn.groupInviteCode(group)
 
-conn.reply(m.chat, `🍓 *ENLACE DEL GRUPO* 🍓
+conn.reply(m.chat, `💖 *ENLACE DEL GRUPO* 💖
 
 ╭─「 *INFO DEL GRUPO* 」─╮
 │ *ENLACE* : ${link}
 │ *ESTADO* : Activo
 ╰─────────────
 
-> *Comparte con cuidado fresita* 😘 No se lo pases a cualquiera`, m, { detectLink: true })
+> *Comparte con cuidado dulzura* 😘 No se lo pases a cualquiera 🌸`, m, { detectLink: true })
 
 }
 handler.help = ['link']
