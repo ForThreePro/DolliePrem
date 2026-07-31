@@ -8,7 +8,6 @@ export async function before(m, { conn }) {
     if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
     let chat = global.db.data.chats[m.chat]
 
-    // Por defecto ON
     if (chat.welcome == null) chat.welcome = true
     if (chat.bye == null) chat.bye = true
 
@@ -19,29 +18,20 @@ export async function before(m, { conn }) {
     if (!metadata) return true
     let user = '@' + who.split('@')[0]
 
-    // FIX @lid
-    let realJid = who
-    if (who.endsWith('@lid')) {
-        try {
-            let info = await conn.onWhatsApp(who)
-            realJid = info[0]?.jid || who
-        } catch(e){}
-    }
-
     // FOTO
     let img
     try {
-        let pp = await conn.profilePictureUrl(realJid, 'image')
+        let pp = await conn.profilePictureUrl(who, 'image')
         img = await fetch(pp).then(v => v.buffer())
     } catch {
-        img = await fetch('https://files.evogb.win/wt9HaN.jpg').then(v => v.buffer()).catch(() => null)
+        img = { url: 'https://files.evogb.win/wt9HaN.jpg' }
     }
 
     let txt = ''
     let audio = ''
 
     // WELCOME
-    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+    if (m.messageStubType === 27 || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
         if (chat.welcome === false) return true
         audio = 'bienvenida.mp3'
         txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
@@ -60,7 +50,7 @@ export async function before(m, { conn }) {
     }
 
     // BYE
-    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
+    if (m.messageStubType === 28 || m.messageStubType === 32 || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
         if (chat.bye === false) return true
         audio = 'despedida.mp3'
         txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
@@ -96,7 +86,7 @@ export async function before(m, { conn }) {
             })
         }, 1500)
     }
-    return false // DETIENE OTROS BEFORE
+    return false
 }
 
 export default async function handler(){}
