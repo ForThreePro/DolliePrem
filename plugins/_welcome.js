@@ -1,114 +1,197 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys';
+import { WAMessageStubType } from '@whiskeysockets/baileys'
+import fetch from 'node-fetch'
+import fs from 'fs'
+import path from 'path'
 
-export async function before(m, { conn, participants, groupMetadata }) {
-    if (!m.messageStubType ||!m.isGroup) return true;
+let handler = async () => {}
 
-    // FORZAR QUE EXISTA LA CONFIG
-    global.db.data.chats[m.chat] = global.db.data.chats[m.chat] || {}
+handler.before = async function (m, { conn }) {
+    if (!m.messageStubType ||!m.isGroup) return
+    if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
     let chat = global.db.data.chats[m.chat]
 
-    // Si no existe, lo creamos en true
-    if (chat.welcome == null) chat.welcome = true
-    if (chat.bye == null) chat.bye = true
+    let who = m.messageStubParameters?.[0]
+    if (!who) return
 
-    const target = m.messageStubParameters?.[0];
-    if (!target) return true;
+    let metadata = await conn.groupMetadata(m.chat).catch(() => null)
+    if (!metadata) return
+    let user = '@' + who.split('@')[0]
 
-    const userData = global.db.data.users[target] || {};
-    const targetName = userData.name || await conn.getName(target) || `@${target.split('@')[0]}`;
-    const actor = m.participant || m.key.participant || m.messageStubParameters?.[1] || null;
+    // FIX @lid
+    let realJid = who
+    if (who.endsWith('@lid')) {
+        try {
+            let info = await conn.onWhatsApp(who)
+            realJid = info[0]?.jid || who
+        } catch(e){}
+    }
 
-    let memberCount = participants.length;
-    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) memberCount++;
-    if ([WAMessageStubType.GROUP_PARTICIPANT_REMOVE, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) memberCount--;
+    // FOTO
+    let img
+    try {
+        let pp = await conn.profilePictureUrl(realJid, 'image')
+        img = await fetch(pp).then(v => v.buffer())
+    } catch {
+        img = await fetch('https://files.evogb.win/wt9HaN.jpg').then(v => v.buffer()).catch(() => null)
+    }
 
-    const actionText = {
-        [WAMessageStubType.GROUP_PARTICIPANT_ADD]: actor? `*Reclutada por* @${actor.split('@')[0]}` : '*Ingresó solita*',
-        [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]: actor? `*Eliminada por* @${actor.split('@')[0]}` : '*Expulsada del grupo*',
-        [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]: '*Se fue del grupo*'
-    };
+    let txt = ''
+    let audio = ''
 
-    const format = (text) => text
-    .replace('@user', `@${target.split('@')[0]}`)
-    .replace('@name', targetName)
-    .replace('@group', groupMetadata.subject)
-    .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripcion')
-    .replace('%users', memberCount)
-    .replace('@action', actionText[m.messageStubType] || '')
-    .replace('@date', new Date().toLocaleString('es-PE'));
-
-    let ppUrl;
-    try { ppUrl = await conn.profilePictureUrl(target, 'image'); }
-    catch { ppUrl = 'https://files.evogb.win/7MjPua.jpg' }
-
-    const welcome = format(`
-💖 *BIENVENIDA DULZURA* 💖
-╭─「 *BIENVENIDA* 」─╮
-│ *NOMBRE* : @name
-│ *GRUPO* : @group
-│ *ESTADO* : @action
-╰─────────────
-├─「 *INFO DEL GRUPO* 」─
-│ 📜 *DESC* : @desc
-│ 👥 *MIEMBROS* : %users
-│ ⚠️ *RECUERDA* : Lee las reglas y portate bien dulzura
-╰─────────────
-> *Bienvenida a casa* 😘 No hagas travesuras 🌸`.trim());
-
-    const bye = format(`
-💖 *DESPEDIDA* 💖
-╭─「 *REPORTE* 」─╮
-│ *NOMBRE* : @name
-│ *GRUPO* : @group
-│ *ESTADO* : @action
-╰─────────────
-├─「 *DETALLE* 」─
-│ 👥 *MIEMBROS ACTUALES* : %users
-│ 🕐 *SALIDA* : @date
-╰─────────────
-> *Se nos fue una dulzura* 😿 Pero aquí seguimos esperándote 🌷`.trim());
-
-    const mentions = [target];
-    if (actor) mentions.push(actor);
-    const context = { contextInfo: { mentionedJid: mentions } };
-
-    // LA CLAVE: SOLO MANDAR SI TU TOGGLE ESTA EN TRUE
+    // WELCOME
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-        if (chat.welcome === false) return true // si esta off, no hagas nada
-        await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: welcome,...context });
-        return false // detiene otros before
+        if (chat.welcome == false) return
+        audio = 'bienvenida.mp3'
+        txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
+│
+│ ✨ *¡Nuevo miembrito llegó!*
+│
+│ 🎀 *Usuario:* ${user}
+│ 💫 *Grupo:* ${metadata.subject}
+│ ⭐ *Total:* ${metadata.participants.length} miembritos
+│
+│ "Bienvenido a la familia 🎀
+│ Ponte cómodo y disfruta 💫"
+│
+│ > *Dollie dice: Nuevo angelito en el grupo*
+╰─────────────────────────╯`
     }
 
-    if ([WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
-        if (chat.bye === false) return true // si esta off, no hagas nada
-        await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: bye,...context });
-        return false // detiene otros before
+    // BYE
+    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
+        if (chat.bye == false) return
+        audio = 'despedida.mp3'
+        txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
+│
+│ 💫 *Se fue un miembrito*
+│
+│ 🎀 *Usuario:* ${user}
+│ ✨ *Grupo:* ${metadata.subject}
+│ ⭐ *Quedamos:* ${metadata.participants.length} miembritos
+│
+│ "Nos vemos prontito 💫"
+│
+│ > *Dollie dice: Te vamos a extrañar* 🎀
+╰─────────────────────────╯`
     }
-    return true
+
+    if (!txt) return
+
+    await conn.sendMessage(m.chat, {
+        image: img,
+        caption: txt,
+        mentions: [who]
+    })
+
+    // AUDIO
+    let audioPath = path.join(process.cwd(), audio)
+    if (fs.existsSync(audioPath)) {
+        setTimeout(async () => {
+            await conn.sendMessage(m.chat, {
+                audio: fs.readFileSync(audioPath),
+                mimetype: 'audio/mpeg',
+                ptt: false
+            })
+        }, 1500)
+    }
 }
 
-// ===== COMANDOS =====
-let handler = async (m, { command, args, isAdmin }) => {
-    if (!isAdmin) return m.reply('❄️ *SOLO ADMINS* ❄️')
-    global.db.data.chats[m.chat] = global.db.data.chats[m.chat] || {}
+export default handlerimport { WAMessageStubType } from '@whiskeysockets/baileys'
+import fetch from 'node-fetch'
+import fs from 'fs'
+import path from 'path'
+
+let handler = async () => {}
+
+handler.before = async function (m, { conn }) {
+    if (!m.messageStubType ||!m.isGroup) return
+    if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
     let chat = global.db.data.chats[m.chat]
 
-    if (chat.welcome == null) chat.welcome = true
-    if (chat.bye == null) chat.bye = true
+    let who = m.messageStubParameters?.[0]
+    if (!who) return
 
-    const estado = args[0]?.toLowerCase() === 'on'
+    let metadata = await conn.groupMetadata(m.chat).catch(() => null)
+    if (!metadata) return
+    let user = '@' + who.split('@')[0]
 
-    if (command === 'bienvenida') {
-        if (!args[0]) return m.reply(`*Estado:* ${chat.welcome? '✅ ON' : '❌ OFF'}\n*Uso:*.bienvenida on/off`)
-        chat.welcome = estado
-        return m.reply(`✅ *BIENVENIDA* ${chat.welcome? 'ACTIVADA' : 'DESACTIVADA'}`)
+    // FIX @lid
+    let realJid = who
+    if (who.endsWith('@lid')) {
+        try {
+            let info = await conn.onWhatsApp(who)
+            realJid = info[0]?.jid || who
+        } catch(e){}
     }
-    if (command === 'despedida') {
-        if (!args[0]) return m.reply(`*Estado:* ${chat.bye? '✅ ON' : '❌ OFF'}\n*Uso:*.despedida on/off`)
-        chat.bye = estado
-        return m.reply(`✅ *DESPEDIDA* ${chat.bye? 'ACTIVADA' : 'DESACTIVADA'}`)
+
+    // FOTO
+    let img
+    try {
+        let pp = await conn.profilePictureUrl(realJid, 'image')
+        img = await fetch(pp).then(v => v.buffer())
+    } catch {
+        img = await fetch('https://files.evogb.win/wt9HaN.jpg').then(v => v.buffer()).catch(() => null)
+    }
+
+    let txt = ''
+    let audio = ''
+
+    // WELCOME
+    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+        if (chat.welcome == false) return
+        audio = 'bienvenida.mp3'
+        txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
+│
+│ ✨ *¡Nuevo miembrito llegó!*
+│
+│ 🎀 *Usuario:* ${user}
+│ 💫 *Grupo:* ${metadata.subject}
+│ ⭐ *Total:* ${metadata.participants.length} miembritos
+│
+│ "Bienvenido a la familia 🎀
+│ Ponte cómodo y disfruta 💫"
+│
+│ > *Dollie dice: Nuevo angelito en el grupo*
+╰─────────────────────────╯`
+    }
+
+    // BYE
+    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
+        if (chat.bye == false) return
+        audio = 'despedida.mp3'
+        txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
+│
+│ 💫 *Se fue un miembrito*
+│
+│ 🎀 *Usuario:* ${user}
+│ ✨ *Grupo:* ${metadata.subject}
+│ ⭐ *Quedamos:* ${metadata.participants.length} miembritos
+│
+│ "Nos vemos prontito 💫"
+│
+│ > *Dollie dice: Te vamos a extrañar* 🎀
+╰─────────────────────────╯`
+    }
+
+    if (!txt) return
+
+    await conn.sendMessage(m.chat, {
+        image: img,
+        caption: txt,
+        mentions: [who]
+    })
+
+    // AUDIO
+    let audioPath = path.join(process.cwd(), audio)
+    if (fs.existsSync(audioPath)) {
+        setTimeout(async () => {
+            await conn.sendMessage(m.chat, {
+                audio: fs.readFileSync(audioPath),
+                mimetype: 'audio/mpeg',
+                ptt: false
+            })
+        }, 1500)
     }
 }
-handler.command = /^(bienvenida|despedida)$/i
-handler.group = true
+
 export default handler
