@@ -22,7 +22,7 @@ sticker: '🎨 *STICKER*',
 
 let handler = async (m, { conn }) => {
 try {
-await conn.sendMessage(m.chat, { react: { text: '🍓', key: m.key } })
+await conn.sendMessage(m.chat, { react: { text: '💖', key: m.key } })
 
 const fecha = moment.tz('America/Lima').format('dddd')
 const fecha2 = moment.tz('America/Lima').format('DD [de] MMMM [de] YYYY')
@@ -48,20 +48,20 @@ for (const plugin of Object.values(global.plugins || {})) {
   }
 }
 
-const userName = m.pushName || 'Usuario'
-const IMG_MENU = 'https://files.evogb.win/qLamZD.jpg'
+const userName = m.pushName || 'Dulzura'
+const IMG_MENU = 'https://files.evogb.win/7MjPua.jpg' // FOTO DOLLIE
 
-let menuTexto = `🍓 *FRESITA BOT* ୨
+let menuTexto = `💖 *DOLLIE BOT* ୨
 
-⤷ ┇ *VERSION* : v3.0 Fresita ：✦ 。
+⤷ ┇ *VERSION* : v3.0 Dollie ：✦ 。
 ╰─ ◈ *ONLINE* • ${horas}h ${minutos}m ${segundos}s
 
-╭─「 👤 *USUARIO* 」─╮
-│ 🍓 @${userName}
-│ 💬 "Lista para consentirte fresita"
+╭─「 👤 *USUARIA* 」─╮
+│ 💖 @${userName}
+│ 💬 "Lista para consentirte dulzura"
 ╰────────────────╯
 
-──🍓 *ESTADISTICAS* ╏ 📊
+──💖 *ESTADISTICAS* ╏ 📊
 👥 *Usuarios* : ${totalUsers} | 📜 *Comandos* : ${pluginsCount}
 💾 *RAM* : ${ram}mb | 🌐 *Servidor* : ${totalram}gb
 
@@ -97,14 +97,14 @@ for (const tag of Object.keys(CATEGORY_META)) {
 }
 
 menuTexto += `
-🍓━━━━━━━━━━━━━━━🍓
-🍓 *BOT* : FRESITA BOT
-💖 *CREADORA* : Tu fresita favorita
-🍓 *VERSION* : 3.0 Coqueta
+💖━━━━━━━━━━━━━━━💖
+💖 *BOT* : DOLLIE BOT
+🌸 *CREADORA* : Tu dulzura favorita
+💖 *VERSION* : 3.0 Tierna
 🌐 *WEB* : github.com
 
-> "Conéctate y déjame endulzarte el dia" 🍓
-🍓━━━━━━━━━━━━━━━🍓`
+> "Conéctate y déjame endulzarte el dia" 🌷
+💖━━━━━━━━━━━━━━━💖`
 
 await conn.sendMessage(m.chat, {
   image: { url: IMG_MENU },
@@ -113,12 +113,12 @@ await conn.sendMessage(m.chat, {
 }, { quoted: m })
 
 } catch (e) {
-await conn.sendMessage(m.chat, { text: `❌ *ERROR* : ${e.message}\n> *Ay nooo algo salió mal* 😿` }, { quoted: m })
+await conn.sendMessage(m.chat, { text: `❌ *ERROR* ❌\n\n> *Ay nooo algo salió mal* 😿\n*Detalle*: ${e.message}` }, { quoted: m })
 }
 }
 
 handler.help = ['menu']
 handler.tags = ['info']
-handler.command = ['menu', 'help', 'menufresita']
+handler.command = ['menu', 'help', 'menudollie']
 
 export default handler
