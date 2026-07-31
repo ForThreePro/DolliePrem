@@ -2,27 +2,27 @@ import moment from 'moment-timezone'
 import os from 'os'
 
 const CATEGORY_META = {
-config: '⚙️ 𝗖𝗢𝗡𝗙𝗜𝗚',
-main: '🔧 𝗠𝗔𝗜𝗡',
-tools: '🛠️ 𝗧𝗢𝗟𝗦',
-owner: '👑 𝗢𝗪𝗡𝗘𝗥',
-sorteos: '🎯 𝗦𝗢𝗥𝗧𝗘𝗢𝗦',
-fun: '😈 𝗙𝗨𝗡',
-joda: '😎 𝗝𝗢𝗗𝗔',
-ff: '🔫 𝗙𝗙',
-buscadores: '🔍 𝗦𝗘𝗔𝗥𝗖𝗛',
-descargas: '📥 𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗥',
-grupo: '⚔️ 𝗚𝗥𝗨𝗣𝗢𝗦',
-grupos: '🛡️ 𝗚𝗥𝗨𝗣𝗢',
-gacha: '👥 𝗚𝗥𝗢𝗨𝗣',
-ia: '🤖 𝗜𝗡𝗧𝗘𝗟𝗜𝗚𝗘𝗡𝗖𝗜𝗔 𝗔𝗥𝗧𝗜𝗙𝗜𝗖𝗜𝗔𝗟',
-info: 'ℹ️ 𝗜𝗡𝗙𝗢',
-sticker: '🎨 𝗦𝗧𝗜𝗖𝗞𝗘𝗥',
+config: '⚙️ *CONFIG*',
+main: '🔧 *PRINCIPAL*',
+tools: '🛠️ *HERRAMIENTAS*',
+owner: '👑 *OWNER*',
+sorteos: '🎯 *SORTEOS*',
+fun: '😈 *DIVERSIÓN*',
+joda: '😎 *JODA*',
+ff: '🔫 *FREE FIRE*',
+buscadores: '🔍 *BÚSQUEDA*',
+descargas: '📥 *DESCARGAS*',
+grupo: '⚔️ *GRUPOS*',
+grupos: '🛡️ *GRUPO*',
+gacha: '👥 *GACHA*',
+ia: '🤖 *INTELIGENCIA*',
+info: 'ℹ️ *INFO*',
+sticker: '🎨 *STICKER*',
 }
 
 let handler = async (m, { conn }) => {
 try {
-await conn.sendMessage(m.chat, { react: { text: '⚡', key: m.key } })
+await conn.sendMessage(m.chat, { react: { text: '🍓', key: m.key } })
 
 const fecha = moment.tz('America/Lima').format('dddd')
 const fecha2 = moment.tz('America/Lima').format('DD [de] MMMM [de] YYYY')
@@ -49,26 +49,26 @@ for (const plugin of Object.values(global.plugins || {})) {
 }
 
 const userName = m.pushName || 'Usuario'
-const IMG_MENU = 'https://files.evogb.win/4EIjxL.jpg'
+const IMG_MENU = 'https://files.evogb.win/qLamZD.jpg'
 
-let menuTexto = `⚡ *𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧* 🔥 ୨
+let menuTexto = `🍓 *FRESITA BOT* ୨
 
-⤷ ┇ *𝗦𝗬𝗦𝗧𝗘𝗠:* v3.0 Cyber ：✦ 。
-╰─ ◈ *𝗢𝗡𝗟𝗜𝗡𝗘* • ${horas}𝗵 ${minutos}𝗺 ${segundos}𝘀
+⤷ ┇ *VERSION* : v3.0 Fresita ：✦ 。
+╰─ ◈ *ONLINE* • ${horas}h ${minutos}m ${segundos}s
 
-╭─「 👤 𝗨𝗦𝗨𝗔𝗥𝗜𝗢 」─╮
-│ 💀 @${userName}
-│ 💬 "𝗖𝗼𝗻𝗲𝗰𝘁𝗮𝗱𝗼. 𝗟𝗶𝘀𝘁𝗼 𝗽𝗮𝗿𝗮 𝗱𝗼𝗺𝗶𝗻𝗮𝗿"
+╭─「 👤 *USUARIO* 」─╮
+│ 🍓 @${userName}
+│ 💬 "Lista para consentirte fresita"
 ╰────────────────╯
 
-──⚡ *𝗘𝗦𝗧𝗔𝗗𝗜𝗦𝗧𝗜𝗖𝗔𝗦* ╏ 📊
-👥 *𝗨𝘀𝘂𝗮𝗿𝗶𝗼𝘀:* ${totalUsers} | 📜 *𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀:* ${pluginsCount}
-💾 *𝗥𝗔𝗠:* ${ram}𝗺𝗯 | 🌐 *𝗦𝗲𝗿𝘃𝗶𝗱𝗼𝗿:* ${totalram}𝗴𝗯
+──🍓 *ESTADISTICAS* ╏ 📊
+👥 *Usuarios* : ${totalUsers} | 📜 *Comandos* : ${pluginsCount}
+💾 *RAM* : ${ram}mb | 🌐 *Servidor* : ${totalram}gb
 
-──🔧 *𝗦𝗜𝗦𝗧𝗘𝗠𝗔* 🔧──
-📅 *𝗗𝗶𝗮:* ${fecha}
-📆 *𝗙𝗲𝗰𝗵𝗮:* ${fecha2}
-🕐 *𝗛𝗼𝗿𝗮:* ${hora} | 📡 *𝗣𝗶𝗻𝗴:* ${Math.round(performance.now())}𝗺𝘀
+──🔧 *SISTEMA* 🔧──
+📅 *Dia* : ${fecha}
+📆 *Fecha* : ${fecha2}
+🕐 *Hora* : ${hora} | 📡 *Ping* : ${Math.round(performance.now())}ms
 
 `
 
@@ -97,14 +97,14 @@ for (const tag of Object.keys(CATEGORY_META)) {
 }
 
 menuTexto += `
-⚡━━━━━━━━━━━━━━━⚡
-🔥 *𝗕𝗢𝗧:* 𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧
-💀 *𝗖𝗥𝗘𝗔𝗗𝗢𝗥:* 𝗪𝗵𝗼𝗶𝘀 𝗬𝗮𝗹𝗹𝗶 𝗰𝗼 👑
-⚡ *𝗩𝗘𝗥𝗦𝗜𝗢𝗡:* 3.0 𝗖𝘆𝗯𝗲𝗿 𝗠𝗮𝘀𝗰𝘂𝗹𝗶𝗻𝗼
-🌐 *𝗪𝗘𝗕:* 𝗴𝗶𝘁𝗵𝘂𝗯.𝗰𝗼𝗺
+🍓━━━━━━━━━━━━━━━🍓
+🍓 *BOT* : FRESITA BOT
+💖 *CREADORA* : Tu fresita favorita
+🍓 *VERSION* : 3.0 Coqueta
+🌐 *WEB* : github.com
 
-> "𝗖𝗼𝗻𝗲𝗰𝘁𝗮𝗱𝗼 𝗮𝗹 𝘀𝗶𝘀𝘁𝗲𝗺𝗮. 𝗗𝗼𝗺𝗶𝗻𝗮 𝗼 𝗺𝘂𝗲𝗿𝗲" ⚡
-⚡━━━━━━━━━━━━━━━⚡`
+> "Conéctate y déjame endulzarte el dia" 🍓
+🍓━━━━━━━━━━━━━━━🍓`
 
 await conn.sendMessage(m.chat, {
   image: { url: IMG_MENU },
@@ -113,12 +113,12 @@ await conn.sendMessage(m.chat, {
 }, { quoted: m })
 
 } catch (e) {
-await conn.sendMessage(m.chat, { text: `❌ *𝗦𝗬𝗦𝗧𝗘𝗠 𝗘𝗥𝗢𝗥:* ${e.message}` }, { quoted: m })
+await conn.sendMessage(m.chat, { text: `❌ *ERROR* : ${e.message}\n> *Ay nooo algo salió mal* 😿` }, { quoted: m })
 }
 }
 
 handler.help = ['menu']
 handler.tags = ['info']
-handler.command = ['menu', 'help', 'menucyber']
+handler.command = ['menu', 'help', 'menufresita']
 
 export default handler
