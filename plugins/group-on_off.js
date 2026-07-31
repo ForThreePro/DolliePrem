@@ -19,7 +19,6 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 💖 *CONFIGURACION DE ${groupName}* 💖
 
 ╭─「 *ESTADO ACTUAL* 」─╮
-│ ${chatData.welcome? on : off} *Bienvenida*
 │ ${chatData.antiLink? on : off} *AntiLink*
 │ ${chatData.economy? on : off} *Economia*
 │ ${chatData.gacha? on : off} *Gacha*
@@ -32,8 +31,9 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ╰─────────────
 
 ╭─「 *USO* 」─╮
-│.${command} welcome on/off
 │.${command} antilink on/off
+│.${command} economia on/off
+│.${command} gacha on/off
 ╰─────────────
 
 > *Dollie Bot* te ayuda a configurar todo 🌸`.trim();
@@ -72,8 +72,6 @@ let handler = async (m, { conn, args, command, isOwner }) => {
       chatData.adminonly = status; reply('Modo Admin'); break;
     case 'nsfw':
       chatData.nsfw = status; reply('NSFW'); break;
-    case 'bienvenida': case 'welcome':
-      chatData.welcome = status; reply('Bienvenida'); break;
     case 'reaccion': case 'reaction':
       chatData.reaction = status; reply('Reacciones'); break;
     case 'alerts': case 'alertas':
