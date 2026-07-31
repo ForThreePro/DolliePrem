@@ -8,7 +8,7 @@ let handler = async (m, { conn }) => {
     const enlaceCompleto = 'https://chat.whatsapp.com/' + nuevoEnlace
 
     await conn.reply(m.sender, 
-`🍓 *PROTOCOLO EJECUTADO* 🍓
+`💖 *PROTOCOLO EJECUTADO* 💖
 
 ╭─「 *REPORTE DE SEGURIDAD* 」─╮
 │ *ENLACE ANTERIOR* : Revocado
@@ -19,14 +19,14 @@ let handler = async (m, { conn }) => {
 > *El acceso anterior ha sido anulado* 🔒 Te lo mando al privado`, 
       m, { detectLink: true })
 
-    await conn.reply(m.chat, `🍓 *ENLACE RESTABLECIDO* 🍓
+    await conn.reply(m.chat, `💖 *ENLACE RESTABLECIDO* 💖
 
 ╭─「 *ADVERTENCIA* 」─╮
 │ *El enlace anterior ya no funciona*
 │ *Solo el nuevo enlace es valido*
 ╰─────────────
 
-> *Guarden el nuevo link fresitas* 😘`, m)
+> *Guarden el nuevo link dulzuras* 😘🌸`, m)
 
   } catch (error) {
     console.error(error)
