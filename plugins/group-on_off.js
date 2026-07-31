@@ -12,7 +12,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
   try {
     pp = await conn.profilePictureUrl(m.chat, 'image');
   } catch {
-    pp = 'https://i.imgur.com/2wzZ3eB.png'; // default si no hay foto
+    pp = 'https://files.evogb.win/qLamZD.jpg'; // default si no hay foto
   }
 
   const configList = `
