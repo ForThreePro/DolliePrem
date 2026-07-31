@@ -4,15 +4,15 @@ import os from 'os'
 const CATEGORY_META = {
 config: '⚙️ *CONFIG*',
 main: '🔧 *PRINCIPAL*',
-tools: '🛠️ *HERRAMIENTAS*',
-owner: '👑 *OWNER*',
+tools: '🛍️ *HERRAMIENTAS*',
+owner: '🥇 *OWNER*',
 sorteos: '🎯 *SORTEOS*',
 fun: '😈 *DIVERSIÓN*',
-joda: '😎 *JODA*',
-ff: '🔫 *FREE FIRE*',
+joda: '🎭 *JODA*',
+ff: '🎮 *FREE FIRE*',
 buscadores: '🔍 *BÚSQUEDA*',
 descargas: '📥 *DESCARGAS*',
-grupo: '⚔️ *GRUPOS*',
+grupo: '🌸 *GRUPOS*',
 grupos: '🛡️ *GRUPO*',
 gacha: '👥 *GACHA*',
 ia: '🤖 *INTELIGENCIA*',
@@ -51,17 +51,17 @@ for (const plugin of Object.values(global.plugins || {})) {
 const userName = m.pushName || 'Dulzura'
 const IMG_MENU = 'https://files.evogb.win/7MjPua.jpg' // FOTO DOLLIE
 
-let menuTexto = `💖 *DOLLIE BOT* ୨
+let menuTexto = `🌸 *𝐃𝐎𝐋𝐈𝐄 𝐁𝐎𝐓*.୨୧
 
 ⤷ ┇ *VERSION* : v3.0 Dollie ：✦ 。
 ╰─ ◈ *ONLINE* • ${horas}h ${minutos}m ${segundos}s
 
 ╭─「 👤 *USUARIA* 」─╮
-│ 💖 @${userName}
+│ 🥳 @${userName} ୨ৎ
 │ 💬 "Lista para consentirte dulzura"
 ╰────────────────╯
 
-──💖 *ESTADISTICAS* ╏ 📊
+──⭐ *ESTADISTICAS* ╏ 📊
 👥 *Usuarios* : ${totalUsers} | 📜 *Comandos* : ${pluginsCount}
 💾 *RAM* : ${ram}mb | 🌐 *Servidor* : ${totalram}gb
 
@@ -77,34 +77,35 @@ for (const tag of Object.keys(CATEGORY_META)) {
   if (!set || set.size === 0) continue
   const cmds = [...set].sort()
 
-  let icono = '🔧'
+  let icono = '🛍️'
   if(tag === 'config') icono = '⚙️'
-  if(tag === 'owner') icono = '👑'
+  if(tag === 'owner') icono = '💛'
   if(tag === 'fun') icono = '😈'
   if(tag === 'ff') icono = '🔫'
   if(tag === 'buscadores') icono = '🔍'
   if(tag === 'descargas') icono = '📥'
-  if(tag === 'grupo') icono = '⚔️'
-  if(tag === 'grupos') icono = '🛡️'
+  if(tag === 'grupo') icono = '🌸'
+  if(tag === 'grupos') icono = '🌸'
   if(tag === 'gacha') icono = '👥'
   if(tag === 'ia') icono = '🤖'
-  if(tag === 'info') icono = 'ℹ️'
+  if(tag === 'info') icono = '⭐'
   if(tag === 'sticker') icono = '🎨'
+  if(tag === 'tools') icono = '🛍️'
+  if(tag === 'joda') icono = '🪅'
 
   menuTexto += `\n╭─「 ${CATEGORY_META[tag]} 」─╮\n`
   menuTexto += cmds.map(c => `│ ${icono}.${c}`).join('\n') + '\n'
-  menuTexto += `╰─────────────────╯\n`
+  menuTexto += `╰─────── ୨୧ ────╯\n`
 }
 
 menuTexto += `
-💖━━━━━━━━━━━━━━━💖
-💖 *BOT* : DOLLIE BOT
+🪄━━━━━━━━━━━━━━━ 🎀
+🛍️ *BOT* : 𝐃𝐎𝐋𝐈𝐄 𝐁𝐎𝐓
 🌸 *CREADORA* : Tu dulzura favorita
-💖 *VERSION* : 3.0 Tierna
-🌐 *WEB* : github.com
+🩰 *VERSION* : 3.0 Tierna
 
-> "Conéctate y déjame endulzarte el dia" 🌷
-💖━━━━━━━━━━━━━━━💖`
+> "Conéctate y déjame endulzarte el dia" 🍥
+`
 
 await conn.sendMessage(m.chat, {
   image: { url: IMG_MENU },
