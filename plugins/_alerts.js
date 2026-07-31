@@ -17,7 +17,7 @@ handler.before = async function (m, { conn }) {
     const realSender = realSenderRaw?.includes('@')? realSenderRaw : null
 
     const userTag = `@${userss.split('@')[0]}`
-    const adminTag = realSender? `@${realSender.split('@')[0]}` : 'SYSTEM'
+    const adminTag = realSender? `@${realSender.split('@')[0]}` : 'SISTEMA'
 
     const mentions = [userss]
     if (realSender) mentions.push(realSender)
@@ -30,7 +30,7 @@ handler.before = async function (m, { conn }) {
         }
     }
 
-    // 1. FOTO DEL USER > 2. FOTO DEL GRUPO > 3. DEFAULT FRESITA
+    // 1. FOTO DEL USER > 2. FOTO DEL GRUPO > 3. DEFAULT DOLLIE
     let banner;
     try {
         banner = await conn.profilePictureUrl(userss, 'image')
@@ -38,44 +38,46 @@ handler.before = async function (m, { conn }) {
         try {
             banner = await conn.profilePictureUrl(m.chat, 'image')
         } catch {
-            banner = 'https://files.evogb.win/qLamZD.jpg'
+            banner = 'https://files.evogb.win/7MjPua.jpg' // FOTO DOLLIE
         }
     }
 
-    // DISEÑO FRESITA PROMOTE 🍓
+    // DISEÑO DOLLIE PROMOTE 💖
     const admingp = `
-╭───「 🍓 *ASCENSO DULCE* 」───╮
-│
-│ *TARGET* : ${userTag}
-│ *ESTADO* : ✅ *CORONADA COMO ADMIN*
+💖 *ASCENSO DULCE* 💖
+
+╭─「 *CORONACION* 」─╮
+│ *USUARIA* : ${userTag}
+│ *ESTADO* : ✅ *AHORA ES ADMIN*
 │ *POR* : ${adminTag}
-│
-├─「 *NUEVOS PODERES* 」─
-│ [✓] Expulsar y Promover
-│ [✓] Editar info del grupo
-│ [✓] Cambiar ajustes
-│ [✓] Mandar anuncios
 ╰─────────────
 
-> *Con grandes poderes vienen grandes fresitas* 🍓
-`.trim()
+├─「 *NUEVOS PODERES* 」─
+│ ✨ Expulsar y Promover
+│ ✨ Editar info del grupo
+│ ✨ Cambiar ajustes
+│ ✨ Mandar anuncios
+╰─────────────
 
-    // DISEÑO FRESITA DEMOTE 🍓
+> *Con grandes poderes vienen grandes dulzuras* 🌸`.trim()
+
+    // DISEÑO DOLLIE DEMOTE 💖
     const noadmingp = `
-╭───「 🔒 *DESCENSO SUAVE* 」───╮
-│
-│ *TARGET* : ${userTag}
+💖 *DESCENSO SUAVE* 💖
+
+╭─「 *CAMBIOS* 」─╮
+│ *USUARIA* : ${userTag}
 │ *ESTADO* : ❌ *RANGO QUITADO*
 │ *POR* : ${adminTag}
-│
-├─「 *ACCESO DENEGADO* 」─
-│ [✗] Ya no es admin
-│ [✗] Comandos bloqueados
-│ [✗] Solo miembra del grupo
 ╰─────────────
 
-> *A veces toca volver a ser fresita normal* 🍓
-`.trim()
+├─「 *ACCESO* 」─
+│ 🥺 Ya no es admin
+│ 🥺 Comandos bloqueados
+│ 🥺 Solo miembra del grupo
+╰─────────────
+
+> *A veces toca volver a ser dulzura normal* 🌷`.trim()
 
     // LIMPIAR SESSION SI KICKEAN BOT
     if (chat.detect && m.messageStubType == 2) {
@@ -95,7 +97,7 @@ handler.before = async function (m, { conn }) {
         await conn.sendMessage(m.chat, {
             image: { url: banner },
             caption: admingp,
-      ...context
+           ...context
         }, { quoted: null })
         return
     }
@@ -105,7 +107,7 @@ handler.before = async function (m, { conn }) {
         await conn.sendMessage(m.chat, {
             image: { url: banner },
             caption: noadmingp,
-      ...context
+           ...context
         }, { quoted: null })
         return
     }
