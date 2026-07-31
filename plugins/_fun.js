@@ -1,11 +1,11 @@
 let handler = async (m, { conn, command, text }) => {
-    if(!m.isGroup) return m.reply('🍓 *Fresita Bot* solo funciona en grupos')
+    if(!m.isGroup) return m.reply('💖 *Dollie Bot* solo funciona en grupos dulzura')
 
     let metadata = await conn.groupMetadata(m.chat)
     let users = metadata.participants.map(u => u.id)
     let porcentaje = Math.floor(Math.random() * 101)
 
-    const BOX_TOP = `╭───「 🍓 *FRESITA SYSTEM* 」───╮`
+    const BOX_TOP = `💖 *DOLLIE SYSTEM* 💖`
     const BOX_BOT = `╰─────────────`
 
     const frasesDuo = ["Somos el duo perfecto 😎","Juntos somos un peligro ⚠️","El duo que rompe grupos 💥","Duo de chisme nivel dios ☕","Dinamita pura 🧨","El mejor duo del server 👑"]
@@ -41,14 +41,15 @@ let handler = async (m, { conn, command, text }) => {
     }
 
     if(!target &&!['2p2','3p3','duo'].includes(command.toLowerCase()))
-        return m.reply(`╭───「 ⚠️ *USO INCORRECTO* 」───╮
-│
+        return m.reply(`⚠️ *USO INCORRECTO* ⚠️
+
+╭─「 *AYUDA* 」─╮
 │ *USO* :.${command} @tag
 │ *EJEMPLO* :.${command} @Juan
 │ *ALT* : Responde +.${command}
-│
 ╰─────────────
-> *Mencióname a alguien fresita* 🍓`)
+
+> *Mencióname a alguien dulzura* 🌸`)
 
     let cmd = command.toLowerCase().replace(' ','') // quita espacios
 
@@ -57,45 +58,49 @@ let handler = async (m, { conn, command, text }) => {
         case 'miamor':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Amor Detectado
-│
+
+╭─「 *AMOR DETECTADO* 」─╮
 │ *TARGET* : ${jidToTag(target)}
 │ *NIVEL* : ${porcentaje}%
 │ *DIAGNOSTICO* : ${porcentaje > 70? 'Almas Gemelas' : porcentaje > 40? 'Hay Quimica' : 'Frio Como Hielo'}
-${BOX_BOT}
+╰─────────────
+
 > *El amor está en el aire* 😘`
             break
 
         case 'mibebito':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Fiu Fiu Detectado
-│
+
+╭─「 *FIU FIU DETECTADO* 」─╮
 │ *TARGET* : ${jidToTag(target)} 😏
 │ *NIVEL* : ${porcentaje}%
-${BOX_BOT}
-> *Uy uy que coqueto* 🍓`
+╰─────────────
+
+> *Uy uy que coqueta* 🌷`
             break
 
         case 'bratz':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Bratz Detectada
-│
+
+╭─「 *BRATZ DETECTADA* 」─╮
 │ *TARGET* : ${jidToTag(target)}
 │ *NIVEL* : ${porcentaje}%
-${BOX_BOT}
-> *Pura actitud de fresita* 💅`
+╰─────────────
+
+> *Pura actitud de dulzura* 💅`
             break
 
         case 'bellaka':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Bellaka Detectada
-│
+
+╭─「 *BELLAKA DETECTADA* 」─╮
 │ *TARGET* : ${jidToTag(target)}
 │ *PEREO* : ${porcentaje}%
-${BOX_BOT}
+╰─────────────
+
 > *Peligrosa esa* 😈`
             break
 
@@ -103,83 +108,87 @@ ${BOX_BOT}
         case 'brother':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Frase Pitufo
-│
+
+╭─「 *FRASE PITUFO* 」─╮
 │ *TARGET* : ${jidToTag(target)}
 │ *FRASE* : ${frasesBro[Math.floor(Math.random()*4)]}
-${BOX_BOT}`
+╰─────────────`
             break
 
         case 'perroinfiel':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Perro Infiel
-│
+
+╭─「 *PERRO INFIEL* 」─╮
 │ *TARGET* : ${jidToTag(target)}
 │ *EVIDENCIA* : ${frasesPerro[Math.floor(Math.random()*4)]}
 │ *NIVEL* : ${porcentaje}%
-${BOX_BOT}
+╰─────────────
+
 > *Te caché* 🐶`
             break
 
         case 'mentiroso': case 'mentiras':
             mentions = [target]
             txt = `${BOX_TOP}
-│ *MODULO* : Mentiroso Detectado
-│
+
+╭─「 *MENTIROSO DETECTADO* 」─╮
 │ *TARGET* : ${jidToTag(target)}
 │ *FRASE* : "Te lo juro por mi mama"
 │ *NIVEL* : ${porcentaje}%
-${BOX_BOT}
+╰─────────────
+
 > *Ya te conozco* 🙄`
             break
 
         // ========== GRUPALES RANDOM ==========
         case '2p2': // 4 PERSONAS = 2 PAREJAS
-            if(users.length < 4) return m.reply('🍓 Mínimo 4 personas en el grupo')
+            if(users.length < 4) return m.reply('💖 Mínimo 4 personas en el grupo dulzura')
             let cuatro = getRandomUsers(4)
             mentions = cuatro
             txt = `${BOX_TOP}
-│ *MODULO* : Sistema 2P2
-│
+
+╭─「 *SISTEMA 2P2* 」─╮
 │ *PAREJA 1* : ${jidToTag(cuatro[0])} ❤️ ${jidToTag(cuatro[1])}
 │ *PAREJA 2* : ${jidToTag(cuatro[2])} ❤️ ${jidToTag(cuatro[3])}
 │
 │ *COMPATIBILIDAD* : ${porcentaje}%
-${BOX_BOT}
-> *Cupido fresita trabajando* 💘`
+╰─────────────
+
+> *Cupido dulzura trabajando* 💘`
             break
 
         case '3p3': // 6 PERSONAS = 3 PAREJAS
-            if(users.length < 6) return m.reply('🍓 Mínimo 6 personas en el grupo')
+            if(users.length < 6) return m.reply('💖 Mínimo 6 personas en el grupo dulzura')
             let seis = getRandomUsers(6)
             mentions = seis
             txt = `${BOX_TOP}
-│ *MODULO* : Sistema 3P3
-│
+
+╭─「 *SISTEMA 3P3* 」─╮
 │ *PAREJA 1* : ${jidToTag(seis[0])} ❤️ ${jidToTag(seis[1])}
 │ *PAREJA 2* : ${jidToTag(seis[2])} ❤️ ${jidToTag(seis[3])}
 │ *PAREJA 3* : ${jidToTag(seis[4])} ❤️ ${jidToTag(seis[5])}
 │
 │ *COMPATIBILIDAD* : ${porcentaje}%
-${BOX_BOT}
+╰─────────────
+
 > *Match para todos* 😘`
             break
 
         case 'duo': // 2 PERSONAS = 1 PAREJA
-            if(users.length < 2) return m.reply('🍓 Mínimo 2 personas en el grupo')
+            if(users.length < 2) return m.reply('💖 Mínimo 2 personas en el grupo dulzura')
             let dos = getRandomUsers(2)
             mentions = dos
             let frase = frasesDuo[Math.floor(Math.random() * frasesDuo.length)]
             txt = `${BOX_TOP}
-│ *MODULO* : Duo Random
-│
+
+╭─「 *DUO RANDOM* 」─╮
 │ *USUARIO 1* : ${jidToTag(dos[0])}
 │ *USUARIO 2* : ${jidToTag(dos[1])}
 │
 │ *RESULTADO* : ${frase}
 │ *COMPATIBILIDAD* : ${porcentaje}%
-${BOX_BOT}`
+╰─────────────`
             break
 
         default:
