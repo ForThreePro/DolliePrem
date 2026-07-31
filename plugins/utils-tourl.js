@@ -5,7 +5,7 @@ import { fileTypeFromBuffer } from "file-type"
 let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, `🍓 *AY NOOO* 🍓
+  if (!mime) return conn.reply(m.chat, `💖 *AY NOOO* 💖
 
 ╭─「 *ERROR* 」─╮
 │ *Responde a un archivo valido*
@@ -20,7 +20,7 @@ let handler = async (m, { conn }) => {
 
     if (!link.success) throw new Error()
 
-    let txt = `🍓 *ARCHIVO SUBIDO A LA NUBE* 🍓
+    let txt = `💖 *ARCHIVO SUBIDO A LA NUBE* 💖
 
 ╭─「 *REPORTE* 」─╮
 │ *ENLACE* : ${link.url}
@@ -29,7 +29,7 @@ let handler = async (m, { conn }) => {
 │ *SERVIDOR* : evogb.win
 ╰─────────────
 
-> *Archivo guardado con exito* ✨`
+> *Archivo guardado con exito* ✨🌸`
 
     await conn.sendFile(m.chat, media, 'file.' + link.url.split('.').pop(), txt, m)
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
