@@ -1,15 +1,11 @@
 const handler = async (m, { isOwner, isAdmin, conn, participants, args }) => {
   try {
-    if (!(isAdmin || isOwner)) {
-      global.dfail('admin', m, conn);
-      return;
-    }
+    if (!(isAdmin || isOwner)) return global.dfail('admin', m, conn);
 
-    const customMessage = args.join(' ') || '🍓 Notificación Fresita';
+    const customMessage = args.join(' ') || '💖 Notificación Dollie';
     const groupMetadata = await conn.groupMetadata(m.chat).catch(() => ({ subject: 'Grupo', participants: [] }));
     const groupName = groupMetadata.subject;
 
-    // Lista de banderas por prefijo
     const countryFlags = [
       { prefijo: '502', bandera: '🇬🇹' }, { prefijo: '503', bandera: '🇸🇻' },
       { prefijo: '504', bandera: '🇭🇳' }, { prefijo: '505', bandera: '🇳🇮' },
@@ -42,7 +38,6 @@ const handler = async (m, { isOwner, isAdmin, conn, participants, args }) => {
       return '🚩';
     };
 
-    // Agrupar participantes por bandera
     const grouped = {};
     for (const mem of participants) {
       const flag = getCountryFlag(mem);
@@ -52,14 +47,13 @@ const handler = async (m, { isOwner, isAdmin, conn, participants, args }) => {
 
     const orderedFlags = countryFlags.map(c => c.bandera).concat(['🚩']);
 
-    // Texto con estética Fresita
-    let messageText = `🍓 *NOTIFICACION FRESITA* 🍓
+    let messageText = `💖 *NOTIFICACION DOLLIE* 💖
 
 ╭─「 *${groupName}* 」─╮
 │ *MENSAJE* : ${customMessage}
 ╰─────────────
 
-> *Conectando a todos los fresitas* 😘
+> *Conectando a todas las dulzuras* 🌷
 
 ──「 *INTEGRANTES* 」──
 👥 *Total* : ${participants.length} usuarios
@@ -79,11 +73,10 @@ const handler = async (m, { isOwner, isAdmin, conn, participants, args }) => {
 
     messageText += `
 ╰─────────────
-🍓 *FRESITA BOT* 🍓
-> *Sistema conectado a todos* ✨`;
+💖 *DOLLIE BOT* 💖
+> *Sistema delicado conectado* ✨`;
 
-    // Foto que me pasaste
-    let img = 'https://files.evogb.win/qLamZD.jpg'
+    let img = 'https://files.evogb.win/7MjPua.jpg'
 
     await conn.sendMessage(m.chat, {
       image: { url: img },
@@ -92,14 +85,8 @@ const handler = async (m, { isOwner, isAdmin, conn, participants, args }) => {
     }, { quoted: m });
 
   } catch (error) {
-    console.error("[ERROR EN FRESITA BOT]:", error);
-    conn.reply(m.chat, `❌ *ERROR* ❌
-
-╭─「 *DETALLE* 」─╮
-│ *Ocurrio un error al ejecutar el comando*
-╰─────────────
-
-> *Ay nooo algo salio mal* 😿`, m);
+    console.error("[ERROR EN DOLLIE BOT]:", error);
+    conn.reply(m.chat, `❌ *ERROR* ❌\n\n> *Ay nooo algo salio mal* 😿`, m);
   }
 };
 
@@ -108,5 +95,4 @@ handler.tags = ['group'];
 handler.command = /^(todos|invocar|tagall)$/i;
 handler.admin = true;
 handler.group = true;
-
 export default handler
