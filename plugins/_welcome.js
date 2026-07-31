@@ -14,14 +14,25 @@ export async function before(m, { conn }) {
     let who = m.messageStubParameters?.[0]
     if (!who) return true
 
+    // FIX IMPORTANTE PARA @lid
+    let realJid = who
+    if (who.endsWith('@lid')) {
+        try {
+            let res = await conn.onWhatsApp(who)
+            realJid = res[0]?.jid || who.replace('@lid', '@s.whatsapp.net')
+        } catch {
+            realJid = who.replace('@lid', '@s.whatsapp.net')
+        }
+    }
+
     let metadata = await conn.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return true
-    let user = '@' + who.split('@')[0]
+    let user = '@' + realJid.split('@')[0]
 
     // FOTO
     let img
     try {
-        let pp = await conn.profilePictureUrl(who, 'image')
+        let pp = await conn.profilePictureUrl(realJid, 'image')
         img = await fetch(pp).then(v => v.buffer())
     } catch {
         img = { url: 'https://files.evogb.win/wt9HaN.jpg' }
@@ -30,7 +41,7 @@ export async function before(m, { conn }) {
     let txt = ''
     let audio = ''
 
-    // WELCOME
+    // WELCOME 27 = ADD
     if (m.messageStubType === 27 || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
         if (chat.welcome === false) return true
         audio = 'bienvenida.mp3'
@@ -49,7 +60,7 @@ export async function before(m, { conn }) {
 ╰─────────────────────────╯`
     }
 
-    // BYE
+    // BYE 28 = LEAVE, 32 = REMOVE
     if (m.messageStubType === 28 || m.messageStubType === 32 || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
         if (chat.bye === false) return true
         audio = 'despedida.mp3'
@@ -72,7 +83,7 @@ export async function before(m, { conn }) {
     await conn.sendMessage(m.chat, {
         image: img,
         caption: txt,
-        mentions: [who]
+        mentions: [realJid] // MENCIONAR CON EL JID REAL
     })
 
     // AUDIO
@@ -86,7 +97,7 @@ export async function before(m, { conn }) {
             })
         }, 1500)
     }
-    return false
+    return false // TAPA OTROS WELCOME
 }
 
 export default async function handler(){}
