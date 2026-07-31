@@ -5,12 +5,12 @@ import { fileTypeFromBuffer } from "file-type"
 let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, `╭─❒ *『 𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧 』* ❒
-│ ⚠️ *ERROR DE SISTEMA*
-│
-│ 🤖 *Responde a un archivo válido*
-│ ⚡ *Formatos:* Imagen, Video, Audio, Doc
-╰─────────────────❒`, m)
+  if (!mime) return conn.reply(m.chat, `🍓 *AY NOOO* 🍓
+
+╭─「 *ERROR* 」─╮
+│ *Responde a un archivo valido*
+│ *Formatos* : Imagen, Video, Audio, Doc
+╰─────────────`, m)
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
@@ -20,28 +20,30 @@ let handler = async (m, { conn }) => {
 
     if (!link.success) throw new Error()
 
-    let txt = `╭─❒ *『 𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧 』* ❒
-│ ☁️ *ARCHIVO SUBIDO A LA NUBE*
-│
-│ 🔗 *Enlace:* ${link.url}
-│ 🆔 *ID:* ${link.id}
-│ 📊 *Tamaño:* ${formatBytes(media.length)}
-│ ⚡ *Servidor:* evogb.win
-│
-│ > *“Archivo almacenado en el servidor”*
-╰─────────────────❒`
+    let txt = `🍓 *ARCHIVO SUBIDO A LA NUBE* 🍓
+
+╭─「 *REPORTE* 」─╮
+│ *ENLACE* : ${link.url}
+│ *ID* : ${link.id}
+│ *TAMAÑO* : ${formatBytes(media.length)}
+│ *SERVIDOR* : evogb.win
+╰─────────────
+
+> *Archivo guardado con exito* ✨`
 
     await conn.sendFile(m.chat, media, 'file.' + link.url.split('.').pop(), txt, m)
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
     console.error(e)
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    await conn.reply(m.chat, `╭─❒ *『 𝗖𝗬𝗕𝗘𝗥 𝗕𝗢𝗧 』* ❒
-│ ❌ *ERROR DE SUBIDA*
-│
-│ ⚡ *No se pudo subir el archivo*
-│ 🤖 *Intenta de nuevo en unos seg*
-╰─────────────────❒`, m)
+    await conn.reply(m.chat, `❌ *ERROR DE SUBIDA* ❌
+
+╭─「 *DETALLE* 」─╮
+│ *No se pudo subir el archivo*
+│ *Intenta de nuevo en unos seg*
+╰─────────────
+
+> *Ay nooo algo salio mal* 😿`, m)
   }
 }
 
