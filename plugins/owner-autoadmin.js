@@ -1,8 +1,8 @@
 const handler = async (m, {conn, isAdmin, groupMetadata }) => {
-  if (isAdmin) return m.reply(`🍓 *AVISO* 🍓
+  if (isAdmin) return m.reply(`💖 *AVISO* 💖
 
 ╭─「 *ESTADO* 」─╮
-│ *Ya eres administrador*
+│ *Ya eres administradora*
 ╰─────────────
 
 > *Tienes coronita* 👑`);
@@ -10,15 +10,15 @@ const handler = async (m, {conn, isAdmin, groupMetadata }) => {
   try {
     await conn.groupParticipantsUpdate(m.chat, [m.sender], 'promote');
     await m.react('✅')
-    m.reply(`🍓 *ASCENSO CONCEDIDO* 🍓
+    m.reply(`💖 *ASCENSO CONCEDIDO* 💖
 
 ╭─「 *REPORTE* 」─╮
-│ *USUARIO* : @${m.sender.split('@')[0]}
-│ *NUEVO RANGO* : Administrador
+│ *USUARIA* : @${m.sender.split('@')[0]}
+│ *NUEVO RANGO* : Administradora
 │ *POR* : Sistema
 ╰─────────────
 
-> *Felicidades fresita, ya mandas aqui* 😘`, null, { mentions: [m.sender] });
+> *Felicidades dulzura, ya mandas aqui* 😘🌸`, null, { mentions: [m.sender] });
 
   } catch (e) {
     console.error(e)
