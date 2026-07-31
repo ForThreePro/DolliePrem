@@ -3,15 +3,17 @@ import { WAMessageStubType } from '@whiskeysockets/baileys';
 export async function before(m, { conn, participants, groupMetadata }) {
     if (!m.messageStubType ||!m.isGroup) return true;
 
-    const chat = global.db.data.chats[m.chat];
-    if (!chat.welcome) return true;
+    // INICIALIZAR CONFIG
+    const chat = global.db.data.chats[m.chat] || {};
+    global.db.data.chats[m.chat] = chat;
+    chat.welcome = chat.welcome?? true // bienvenida por defecto ON
+    chat.bye = chat.bye?? true // despedida por defecto ON
 
     const target = m.messageStubParameters?.[0];
     if (!target) return true;
 
     const userData = global.db.data.users[target] || {};
     const targetName = userData.name || await conn.getName(target) || `@${target.split('@')[0]}`;
-
     const actor = m.participant || m.key.participant || m.messageStubParameters?.[1] || null;
 
     let memberCount = participants.length;
@@ -19,34 +21,27 @@ export async function before(m, { conn, participants, groupMetadata }) {
     if ([WAMessageStubType.GROUP_PARTICIPANT_REMOVE, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) memberCount--;
 
     const actionText = {
-        [WAMessageStubType.GROUP_PARTICIPANT_ADD]:
-            actor? `*Reclutada por* @${actor.split('@')[0]}` : '*Ingresó solita*',
-
-        [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]:
-            actor? `*Eliminada por* @${actor.split('@')[0]}` : '*Expulsada del grupo*',
-
-        [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]:
-            '*Se fue del grupo*'
+        [WAMessageStubType.GROUP_PARTICIPANT_ADD]: actor? `*Reclutada por* @${actor.split('@')[0]}` : '*Ingresó solita*',
+        [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]: actor? `*Eliminada por* @${actor.split('@')[0]}` : '*Expulsada del grupo*',
+        [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]: '*Se fue del grupo*'
     };
 
     const format = (text) => {
         return text
-      .replace('@user', `@${target.split('@')[0]}`)
-      .replace('@name', targetName)
-      .replace('@group', groupMetadata.subject)
-      .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripcion')
-      .replace('%users', memberCount)
-      .replace('@action', actionText[m.messageStubType] || '')
-      .replace('@date', new Date().toLocaleString('es-PE'));
+     .replace('@user', `@${target.split('@')[0]}`)
+     .replace('@name', targetName)
+     .replace('@group', groupMetadata.subject)
+     .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripcion')
+     .replace('%users', memberCount)
+     .replace('@action', actionText[m.messageStubType] || '')
+     .replace('@date', new Date().toLocaleString('es-PE'));
     };
 
-    // DETECTAR SI TIENE FOTO O NO
     let ppUrl;
     try {
         ppUrl = await conn.profilePictureUrl(target, 'image');
     } catch {
-        // Si no tiene foto, usa tu banner dollie
-        ppUrl = 'https://files.evogb.win/7MjPua.jpg'
+        ppUrl = 'https://files.evogb.win/7MjPua.jpg' // tu banner dollie
     }
 
     const welcome = format(`
@@ -89,26 +84,40 @@ export async function before(m, { conn, participants, groupMetadata }) {
     const mentions = [target];
     if (actor) mentions.push(actor);
 
-    const context = {
-        contextInfo: {
-            mentionedJid: mentions,
-            isForwarded: true
-        }
-    };
+    const context = { contextInfo: { mentionedJid: mentions, isForwarded: true } };
 
+    // SOLO MANDAR SI ESTA ACTIVADO
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-        await conn.sendMessage(m.chat, {
-            image: { url: ppUrl },
-            caption: welcome,
-      ...context
-        });
+        if (!chat.welcome) return true
+        await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: welcome,...context });
     }
 
     if ([WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
-        await conn.sendMessage(m.chat, {
-            image: { url: ppUrl },
-            caption: bye,
-      ...context
-        });
+        if (!chat.bye) return true
+        await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: bye,...context });
     }
 }
+
+// ===== COMANDOS PARA ACTIVAR/DESACTIVAR =====
+let handler = async (m, { conn, command, args, isAdmin }) => {
+    if (!isAdmin) return m.reply('❄️ *SOLO ADMINS* ❄️')
+
+    const chat = global.db.data.chats[m.chat]
+    const estado = args[0]?.toLowerCase()
+
+    if (command === 'bienvenida') {
+        if (!['on','off'].includes(estado)) return m.reply(`❄️ *USO:*.bienvenida on/off\n*Estado actual:* ${chat.welcome? '✅ ON' : '❌ OFF'}`)
+        chat.welcome = estado === 'on'
+        m.reply(`✅ *BIENVENIDA* ${chat.welcome? 'ACTIVADA' : 'DESACTIVADA'}`)
+    }
+
+    if (command === 'despedida') {
+        if (!['on','off'].includes(estado)) return m.reply(`❄️ *USO:*.despedida on/off\n*Estado actual:* ${chat.bye? '✅ ON' : '❌ OFF'}`)
+        chat.bye = estado === 'on'
+        m.reply(`✅ *DESPEDIDA* ${chat.bye? 'ACTIVADA' : 'DESACTIVADA'}`)
+    }
+}
+
+handler.command = /^(bienvenida|despedida)$/i
+handler.group = true
+export default handler
