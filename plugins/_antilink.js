@@ -18,19 +18,19 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
             if (m.text.includes(linkThisGroup)) return !0;
         }
 
-        // AVISO FRESITA 🍓
+        // AVISO DOLLIE 💖
         await conn.sendMessage(m.chat, { 
-            image: { url: 'https://files.evogb.win/qLamZD.jpg' },
+            image: { url: 'https://files.evogb.win/7MjPua.jpg' },
             caption: `
-╭───「 🍓 *ANTILINK ACTIVADO* 」───╮
-│
+💖 *ANTILINK ACTIVADO* 💖
+
+╭─「 *DETECCION* 」─╮
 │ *DETECTADO* : Enlace prohibido
-│ *USUARIO* : ${user}
+│ *USUARIA* : ${user}
 │ *ESTADO* : ⚠️ *Eliminando en 3, 2, 1...*
-│
 ╰─────────────
 
-> *Aquí no se pasan links sin permiso, fresita* 🍓
+> *Aquí no se pasan links sin permiso, dulzura* 🌸
 `.trim(), 
             mentions: [m.sender] 
         }, { quoted: m });
@@ -38,16 +38,17 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
         // SI NO ES ADMIN EL BOT
         if (!isBotAdmin) {
             return conn.sendMessage(m.chat, { 
-                image: { url: 'https://files.evogb.win/qLamZD.jpg' },
+                image: { url: 'https://files.evogb.win/7MjPua.jpg' },
                 caption: `
-╭───「 ⚠️ *FALTAN PERMISOS* 」───╮
-│
-│ *Ay nooo* 😿 No puedo eliminarlo
-│ *Díganle a un admin que me suba de rango*
+💖 *AY NOOO* 💖
+
+╭─「 *FALTAN PERMISOS* 」─╮
+│ *No puedo eliminarla* 😿
+│ *Díganle a una admin que me suba de rango*
 │ *Quiero cuidar el grupo bien bonito*
-│
 ╰─────────────
-`.trim(), 
+
+> *Por favor denme coronita* 👑`.trim(), 
                 mentions: groupAdmins.map(v => v.id) 
             }, { quoted: m });
         }
