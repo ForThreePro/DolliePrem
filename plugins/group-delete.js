@@ -1,13 +1,13 @@
 let handler = async (m, { conn, usedPrefix, command }) => {
 
-if (!m.quoted) return conn.reply(m.chat, `🍓 *AY NOOO* 🍓
+if (!m.quoted) return conn.reply(m.chat, `💖 *AY NOOO* 💖
 
 ╭─「 *INSTRUCCION* 」─╮
 │ *Cita el mensaje que quieres eliminar*
 │ *Ejemplo* : Responde +.${command}
 ╰─────────────
 
-> *Tienes que responder al mensaje fresita* 😘`, m)
+> *Tienes que responder al mensaje dulzura* 😘`, m)
 
 try {
     // Caso 1: Mensaje de otro usuario
@@ -21,9 +21,14 @@ try {
         let delet = m.quoted.vM.key
         await conn.sendMessage(m.chat, { delete: delet })
     } catch {
-        return conn.reply(m.chat, `❌ *ERROR* : No se pudo eliminar el mensaje
+        return conn.reply(m.chat, `❌ *ERROR* ❌
 
-> *Ay nooo, no tengo permisos o el mensaje es muy viejo* 😿`, m)
+╭─「 *DETALLE* 」─╮
+│ *No se pudo eliminar el mensaje*
+│ *Posible causa* : Sin permisos o mensaje viejo
+╰─────────────
+
+> *Ay nooo, no pude dulzura* 😿`, m)
     }
 }}
 
