@@ -16,28 +16,32 @@ let handler = async (m, { conn, args, command, isOwner }) => {
   }
 
   const configList = `
-╭─❒ 「 ⚙️ CONFIGURACION 」 ❒─╮
-│
-│ ${chatData.welcome? on : off} Bienvenida
-│ ${chatData.antiLink? on : off} AntiLink
-│ ${chatData.economy? on : off} Economia
-│ ${chatData.gacha? on : off} Gacha
-│ ${chatData.adminonly? on : off} Modo Admin
-│ ${chatData.reaction? on : off} Reacciones
-│ ${chatData.nsfw? on : off} NSFW
-│ ${chatData.alerts? on : off} Alertas
-│ ${chatData.notprefix? on : off} Sin Prefijo
-│ ${botSettings?.jadibotmd? on : off} SubBots
-│
-├─❒ 「 📝 USO 」 ❒─
+🍓 *CONFIGURACION DE ${groupName}* 🍓
+
+╭─「 *ESTADO ACTUAL* 」─╮
+│ ${chatData.welcome? on : off} *Bienvenida*
+│ ${chatData.antiLink? on : off} *AntiLink*
+│ ${chatData.economy? on : off} *Economia*
+│ ${chatData.gacha? on : off} *Gacha*
+│ ${chatData.adminonly? on : off} *Modo Admin*
+│ ${chatData.reaction? on : off} *Reacciones*
+│ ${chatData.nsfw? on : off} *NSFW*
+│ ${chatData.alerts? on : off} *Alertas*
+│ ${chatData.notprefix? on : off} *Sin Prefijo*
+│ ${botSettings?.jadibotmd? on : off} *SubBots*
+╰─────────────
+
+╭─「 *USO* 」─╮
 │.${command} welcome on/off
 │.${command} antilink on/off
-╰───────────❒`.trim();
+╰─────────────
+
+> *Cambia lo que quieras fresita* 😘`.trim();
 
   if (!setting) {
     return conn.sendMessage(m.chat, {
       image: { url: pp },
-      caption: `*${groupName}*\n${configList}`,
+      caption: configList,
       mentions: [m.sender]
     }, { quoted: m });
   }
@@ -46,12 +50,14 @@ let handler = async (m, { conn, args, command, isOwner }) => {
   const reply = (name) => conn.sendMessage(m.chat, {
     image: { url: pp },
     caption: `
-╭─❒ 「 ⚙️ ACTUALIZADO 」 ❒─╮
-│
-│ 📌 Función: ${name}
-│ 📊 Estado: ${status? '✅ ACTIVADO' : '❌ DESACTIVADO'}
-│
-╰───────────❒`.trim(),
+🍓 *ACTUALIZADO* 🍓
+
+╭─「 *CAMBIOS* 」─╮
+│ *FUNCION* : ${name}
+│ *ESTADO* : ${status? '✅ ACTIVADO' : '❌ DESACTIVADO'}
+╰─────────────
+
+> *Listo, ya quedo fresita* ✨`.trim(),
     mentions: [m.sender]
   }, { quoted: m });
 
@@ -84,14 +90,24 @@ let handler = async (m, { conn, args, command, isOwner }) => {
       chatData.notprefix = status; reply('Sin Prefijo'); break;
 
     case 'serbot': case 'jadibot': case 'subbots':
-      if (!isOwner) return m.reply(`╭─❒ 「 ⛔ ERROR 」 ❒─╮\n│\n│ Solo el Owner puede usar esto\n│\n╰───────────❒`);
+      if (!isOwner) return m.reply(`⛔ *ERROR* ⛔
+
+╭─「 *PERMISOS* 」─╮
+│ *Solo el Owner puede usar esto*
+╰─────────────`);
       if (botSettings) { botSettings.jadibotmd = status; reply('SubBots'); }
       break;
 
     default:
       return conn.sendMessage(m.chat, {
         image: { url: pp },
-        caption: `╭─❒ 「 ⚠️ ERROR 」 ❒─╮\n│\n│ Opción no válida\n│\n╰───────────❒\n\n${configList}`,
+        caption: `❌ *ERROR* ❌
+
+╭─「 *AVISO* 」─╮
+│ *Opcion no valida*
+╰─────────────
+
+${configList}`,
         mentions: [m.sender]
       }, { quoted: m });
   }
