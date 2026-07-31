@@ -1,5 +1,5 @@
 let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
-    if (!m.isGroup) return m.reply(`🍓 *AY NOOO* 🍓
+    if (!m.isGroup) return m.reply(`💖 *AY NOOO* 💖
 
 ╭─「 *ACCESO* 」─╮
 │ *Este comando solo en grupos*
@@ -8,23 +8,23 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
     if (!isAdmin &&!isOwner) return m.reply(`⛔ *ACCESO DENEGADO* ⛔
 
 ╭─「 *PERMISOS* 」─╮
-│ *Solo administradores*
+│ *Solo administradoras*
 ╰─────────────`)
 
     let mentioned = await m.mentionedJid
     let who = mentioned.length > 0
-      ? mentioned[0]
+     ? mentioned[0]
         : m.quoted
-      ? m.quoted.sender
+     ? m.quoted.sender
         : text
-      ? text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
+     ? text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
         : false
 
     if (!who) {
-        return m.reply(`🍓 *INSTRUCCION* 🍓
+        return m.reply(`💖 *INSTRUCCION* 💖
 
 ╭─「 *USO* 」─╮
-│ *Etiqueta o cita al usuario*
+│ *Etiqueta o cita a la usuaria*
 │ *Ejemplo* :.${command} @usuario
 ╰─────────────`)
     }
@@ -39,10 +39,10 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
         return m.reply(`⛔ *ACCESO DENEGADO* ⛔
 
 ╭─「 *SEGURIDAD* 」─╮
-│ *No se puede silenciar al owner*
+│ *No se puede silenciar a la owner*
 ╰─────────────
 
-> *Ese es intocable fresita* 🍓`)
+> *Ella es intocable dulzura* 👑`)
     }
 
     let chat = global.db.data.chats[m.chat]
@@ -50,10 +50,10 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
 
     if (/^(mute|silenciar)$/i.test(command)) {
         if (chat.mutedUsers.includes(who)) {
-            return m.reply(`🍓 *AVISO* 🍓
+            return m.reply(`💖 *AVISO* 💖
 
 ╭─「 *ESTADO* 」─╮
-│ ${targetName} *ya esta silenciado*
+│ ${targetName} *ya esta silenciada*
 ╰─────────────`)
         }
 
@@ -61,11 +61,11 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
 
         await conn.reply(
             m.chat,
-            `🍓 *USUARIO SILENCIADO* 🍓
+            `💖 *USUARIA SILENCIADA* 💖
 
 ╭─「 *REPORTE* 」─╮
-│ *USUARIO* : ${targetName}
-│ *ESTADO* : Silenciado
+│ *USUARIA* : ${targetName}
+│ *ESTADO* : Silenciada
 │ *POR* : @${m.sender.split('@')[0]}
 ╰─────────────
 
@@ -75,10 +75,10 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
         )
     } else {
         if (!chat.mutedUsers.includes(who)) {
-            return m.reply(`🍓 *AVISO* 🍓
+            return m.reply(`💖 *AVISO* 💖
 
 ╭─「 *ESTADO* 」─╮
-│ ${targetName} *no esta silenciado*
+│ ${targetName} *no esta silenciada*
 ╰─────────────`)
         }
 
@@ -86,15 +86,15 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
 
         await conn.reply(
             m.chat,
-            `🍓 *USUARIO DESILENCIADO* 🍓
+            `💖 *USUARIA DESILENCIADA* 💖
 
 ╭─「 *REPORTE* 」─╮
-│ *USUARIO* : ${targetName}
-│ *ESTADO* : Liberado
+│ *USUARIA* : ${targetName}
+│ *ESTADO* : Liberada
 │ *POR* : @${m.sender.split('@')[0]}
 ╰─────────────
 
-> *Ya puede hablar de nuevo* 🔊`,
+> *Ya puede hablar de nuevo* 🔊🌸`,
             m,
             { mentions: [who, m.sender] }
         )
