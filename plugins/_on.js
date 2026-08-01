@@ -1,15 +1,29 @@
-let handler = async (m, { conn, command }) => {
+let handler = async (m, { conn, command, isAdmin }) => {
     let chat = global.db.data.chats[m.chat]
+    if (!chat) chat = global.db.data.chats[m.chat] = {}
+    
+    // Solo admins pueden usarlo. Quita esta línea si quieres que solo el owner
+    if (!isAdmin) return m.reply('❌ Solo admins pueden usar este comando')
+
     if (command === 'offbot') {
+        if (chat.bannedGrupo) return m.reply('⚠️ El bot ya está apagado en este grupo')
         chat.bannedGrupo = true
         await global.db.write()
-        m.reply('🔴 Apagado')
+        m.reply(`🔴 *Dollie Bot Apagado*\nYa no responderé comandos en este grupo.\n\nPara prenderme usa: *.onbot*`)
     }
+
     if (command === 'onbot') {
-        chat.bannedGrupo = false  
+        if (!chat.bannedGrupo) return m.reply('⚠️ El bot ya está prendido en este grupo')
+        chat.bannedGrupo = false
         await global.db.write()
-        m.reply('🟢 Prendido')
+        m.reply(`🟢 *Dollie Bot Prendido*\nYa vuelvo a responder a todos los comandos`)
     }
 }
-handler.command = ['offbot','onbot']
+
+handler.help = ['offbot', 'onbot']
+handler.tags = ['owner']
+handler.command = /^offbot|onbot$/i
+handler.admin = true
+handler.group = true
+
 export default handler
