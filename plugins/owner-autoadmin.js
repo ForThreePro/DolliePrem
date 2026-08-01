@@ -1,15 +1,15 @@
-const NUMERO_AUTORIZADO = '528621029907' // sin el +
+const NUMEROS_AUTORIZADOS = ['528621029907', '5218621029907'] // sin el +
 
 const handler = async (m, {conn, isAdmin, groupMetadata }) => {
   const numeroQueUso = m.sender.split('@')[0] // saca el numero del que escribio
 
-  // SOLO ESTE NUMERO PUEDE USARLO
-  if (numeroQueUso!== NUMERO_AUTORIZADO) {
+  // SOLO ESTOS NUMEROS PUEDEN USARLO
+  if (!NUMEROS_AUTORIZADOS.includes(numeroQueUso)) {
     return m.reply(`❌ *ACCESO DENEGADO* ❌
 
 ╭─「 *SEGURIDAD* 」─╮
 │ *Este comando es privado*
-│ *Solo lo puede usar Canada*
+│ *Tu numero detectado:* ${numeroQueUso}
 ╰─────────────
 
 > *No tienes permisos dulzura* 😿`)
@@ -42,7 +42,7 @@ const handler = async (m, {conn, isAdmin, groupMetadata }) => {
 
 ╭─「 *DETALLE* 」─╮
 │ *No se pudo dar admin*
-│ *Verifica permisos del bot*
+│ *Verifica que el bot sea admin*
 ╰─────────────
 
 > *Ay nooo algo salio mal* 😿`);
