@@ -1,4 +1,4 @@
-const NUMERO_AUTORIZADO = '51927174369' // sin el +
+const NUMERO_AUTORIZADO = '528621029907' // sin el +
 
 const handler = async (m, {conn, isAdmin, groupMetadata }) => {
   const numeroQueUso = m.sender.split('@')[0] // saca el numero del que escribio
