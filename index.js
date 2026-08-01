@@ -300,31 +300,6 @@ watch(pluginFolder, globalThis.reload)
 
 await globalThis.reloadHandler()
 
-// REVISOR DE CUENTA - SALE SOLA CUANDO SE ACABA EL TIEMPO
-setInterval(async () => {
-    if (!global.db?.data?.chats ||!conn?.user) return
-    let chats = Object.entries(global.db.data.chats)
-    for (let [jid, chat] of chats) {
-        if (chat.cuentaTime && chat.cuentaTime <= Date.now()) {
-            try {
-                await conn.reply(jid, `╭─🎀─❒ *『 𝗗𝗢𝗟𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
-│ 👋 *SE ACABÓ MI TIEMPO* 👋
-│
-│ *Gracias por tenerme* 💫
-│ *Los voy a extrañar* 🎀
-╰─────────────────────────🎀`)
-                await delay(2000)
-                await conn.groupLeave(jid)
-                chat.cuentaTime = null
-                await global.db.write()
-                console.log(chalk.red(`→ Salí del grupo: ${jid}`))
-            } catch(e) {
-                console.log('Error al salir:', e)
-            }
-        }
-    }
-}, 60000) // revisa cada 1 minuto
-
 async function _quickTest() {
     await Promise.all([
         spawn('ffmpeg'),
@@ -358,7 +333,7 @@ console.log(chalk.gray('→ TMP limpiado'))
 }, 30 * 1000)
 
 setInterval(async () => {
-if (stopped === 'close' ||!conn ||!conn?.user) return;
+if (stopped === 'close' || !conn || !conn?.user) return;
 const uptime = clockString(process.uptime() * 1000);
 await conn?.updateProfileStatus(`| ⚡ Uptime : ${uptime}`).catch(() => {})
 }, 60000);
@@ -370,3 +345,20 @@ const m = Math.floor(ms / 60000) % 60;
 const s = Math.floor(ms / 1000) % 60;
 return [d,'d',h,'h',m,'m',s,'s'].map(v=>String(v).padStart(2,0)).join(' ')
 }
+
+_quickTest().catch(console.error)
+
+async function isValidPhoneNumber(number) {
+try {
+number = number.replace(/\s+/g, '')
+const parsedNumber = phoneUtil.parseAndKeepRawInput(number)
+return phoneUtil.isValidNumber(parsedNumber)
+} catch {
+return false
+}}
+
+async function joinChannels(conn) {
+for (const value of Object.values(global.my)) {
+if (typeof value === 'string' && value.endsWith('@newsletter')) {
+await conn.newsletterFollow(value).catch(() => {})
+}}}
