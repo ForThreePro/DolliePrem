@@ -14,7 +14,7 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function (
 }, ms))
 
 export async function handler(chatUpdate) {
-    this.msgqueque = this.msgqueque || []
+    this.msgqueque = this.msgqueque || [] // ARREGLADO
     this.uptime = this.uptime || Date.now()
     if (!chatUpdate) return
 
@@ -50,10 +50,8 @@ export async function handler(chatUpdate) {
                 if (!("lastDailyGlobal" in user)) user.lastDailyGlobal = 0
             } else {
                 globalThis.db.data.users[m.sender] = {
-                    name: m.name || '',
-                    chocolates: 0, coin: 0, bank: 0, exp: 0,
-                    usedcommands: 0, level: 0, streak: 0,
-                    lastDaily: 0, lastDailyGlobal: 0
+                    name: m.name || '', chocolates: 0, coin: 0, bank: 0, exp: 0,
+                    usedcommands: 0, level: 0, streak: 0, lastDaily: 0, lastDailyGlobal: 0
                 }
             }
 
@@ -76,9 +74,9 @@ export async function handler(chatUpdate) {
                 if (!isNumber(chat.expired)) chat.expired = 0
             } else {
                 globalThis.db.data.chats[m.chat] = {
-                    sWelcome: '', sBye: '', welcome: true, nsfw: false,
-                    gacha: true, alerts: true, adminonly: false, antilinks: true,
-                    notprefix: false, bannedGrupo: false, economy: true, expired: 0
+                    sWelcome: '', sBye: '', welcome: true, nsfw: false, gacha: true,
+                    alerts: true, adminonly: false, antilinks: true, notprefix: false,
+                    bannedGrupo: false, economy: true, expired: 0
                 }
             }
 
@@ -116,7 +114,7 @@ export async function handler(chatUpdate) {
 
         const isMods = isOwner
 
-        // FILTRO OFFBOT
+        // FILTRO OFFBOT - VA AQUI ARRIBA
         if (chat?.bannedGrupo &&!isOwner && (m.text || '').toLowerCase().trim()!== '.onbot' && (m.text || '').toLowerCase().trim()!== '#onbot') return
 
         if (m.isGroup && chat && chat.primaryBot) {
@@ -131,7 +129,7 @@ export async function handler(chatUpdate) {
 
         if (opts["queque"] && m.text &&!(isMods)) {
             const queque = this.msgqueque, time = 1000 * 5
-            const previousID = queque[que.length - 1] // ARREGLADO
+            const previousID = queque[queque.length - 1] // ARREGLADO
             queque.push(m.id || m.key.id)
             setInterval(async function () {
                 if (queque.indexOf(previousID) === -1) clearInterval(this)
@@ -250,9 +248,10 @@ export async function handler(chatUpdate) {
         }
     } catch (err) { console.error(err) }
     finally {
-        if (opts["queque"] && m.text) {
-            const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id) // ARREGLADO
-            if (queIndex!== -1) this.msgque.splice(queIndex, 1)
+        if (opts["que"] && m.text) {
+            const quequeIndex = this.msgque.indexOf(m.id || m.key.id) // ARREGLADO
+            if (quequeIndex!== -1) // ARREGLADO
+                this.msgqueque.splice(quequeIndex, 1) // ARREGLADO
         }
         if (m && m.sender) {
             const user = globalThis.db.data.users[m.sender]
