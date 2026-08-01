@@ -1,10 +1,10 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys'
 import fetch from 'node-fetch'
 import fs from 'fs'
 import path from 'path'
 
-export async function before(m, { conn }) {
-    if (!m.messageStubType ||!m.isGroup) return true
+let handler = m => m
+handler.all = async function (m) {
+    if (!m.messageStubType ||!m.isGroup) return
     if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
     let chat = global.db.data.chats[m.chat]
 
@@ -12,27 +12,27 @@ export async function before(m, { conn }) {
     if (chat.bye == null) chat.bye = true
 
     let who = m.messageStubParameters?.[0]
-    if (!who) return true
+    if (!who) return
 
-    // FIX IMPORTANTE PARA @lid
+    // CONVERTIR @lid A JID REAL
     let realJid = who
     if (who.endsWith('@lid')) {
         try {
-            let res = await conn.onWhatsApp(who)
+            let res = await this.onWhatsApp(who)
             realJid = res[0]?.jid || who.replace('@lid', '@s.whatsapp.net')
         } catch {
             realJid = who.replace('@lid', '@s.whatsapp.net')
         }
     }
 
-    let metadata = await conn.groupMetadata(m.chat).catch(() => null)
-    if (!metadata) return true
+    let metadata = await this.groupMetadata(m.chat).catch(() => null)
+    if (!metadata) return
     let user = '@' + realJid.split('@')[0]
 
     // FOTO
     let img
     try {
-        let pp = await conn.profilePictureUrl(realJid, 'image')
+        let pp = await this.profilePictureUrl(realJid, 'image')
         img = await fetch(pp).then(v => v.buffer())
     } catch {
         img = { url: 'https://files.evogb.win/wt9HaN.jpg' }
@@ -41,9 +41,9 @@ export async function before(m, { conn }) {
     let txt = ''
     let audio = ''
 
-    // WELCOME 27 = ADD
-    if (m.messageStubType === 27 || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-        if (chat.welcome === false) return true
+    // WELCOME
+    if (m.messageStubType === 27) {
+        if (chat.welcome === false) return
         audio = 'bienvenida.mp3'
         txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
 │
@@ -60,9 +60,9 @@ export async function before(m, { conn }) {
 ╰─────────────────────────╯`
     }
 
-    // BYE 28 = LEAVE, 32 = REMOVE
-    if (m.messageStubType === 28 || m.messageStubType === 32 || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
-        if (chat.bye === false) return true
+    // BYE
+    if (m.messageStubType === 28 || m.messageStubType === 32) {
+        if (chat.bye === false) return
         audio = 'despedida.mp3'
         txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
 │
@@ -78,26 +78,24 @@ export async function before(m, { conn }) {
 ╰─────────────────────────╯`
     }
 
-    if (!txt) return true
+    if (!txt) return
 
-    await conn.sendMessage(m.chat, {
+    await this.sendMessage(m.chat, {
         image: img,
         caption: txt,
-        mentions: [realJid] // MENCIONAR CON EL JID REAL
+        mentions: [realJid]
     })
 
-    // AUDIO
     let audioPath = path.join(process.cwd(), audio)
     if (fs.existsSync(audioPath)) {
         setTimeout(async () => {
-            await conn.sendMessage(m.chat, {
+            await this.sendMessage(m.chat, {
                 audio: fs.readFileSync(audioPath),
                 mimetype: 'audio/mpeg',
                 ptt: false
             })
         }, 1500)
     }
-    return false // TAPA OTROS WELCOME
 }
 
-export default async function handler(){}
+export default handler
