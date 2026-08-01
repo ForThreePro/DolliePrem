@@ -220,4 +220,4 @@ global.dfail = (type, m, conn) => {
         restrict: "✿ *_¡Esta característica está -deshabilitada-_*"
     }[type]
     if (msg) return m.reply(msg)
-                    }
+                                                       }
