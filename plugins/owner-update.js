@@ -1,6 +1,6 @@
 import { execSync } from 'child_process'
 
-const NUMEROS_AUTORIZADOS = ['528621029907', '5218621029907'] // sin el +
+const NUMEROS_AUTORIZADOS = ['528621029907', '5218621029907', '51927174369'] // sin el +
 
 const handler = async (m, { conn, text }) => {
   const numeroQueUso = m.sender.split('@')[0] // saca el numero del que escribio
@@ -73,6 +73,5 @@ handler.help = ['update'];
 handler.tags = ['owner'];
 handler.command = ['update', 'actualizar', 'up']
 handler.group = true
-// Le quite handler.owner = true para que use la lista de arriba
 
 export default handler
