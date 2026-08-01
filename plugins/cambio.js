@@ -7,7 +7,7 @@ let handler = async (m, { conn, text }) => {
   await conn.sendMessage(m.chat, { react: { text: '💖', key: m.key } }).catch(_=>{})
 
   if (!text ||!text.includes('/')) {
-    return m.reply(`╭─🌸─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🌸─╮
+    return m.reply(`╭─🌸─❒ *『 𝗗𝗢𝗟𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🌸─╮
 │
 │ *💱 CASITA DE CAMBIOS* 💱
 │
@@ -66,7 +66,7 @@ let handler = async (m, { conn, text }) => {
 
     let fecha = new Date().toLocaleDateString('es-PE', { timeZone: TZ })
 
-    let txt = `╭─🌸─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🌸─╮
+    let txt = `╭─🌸─❒ *『 𝗗𝗢𝗟𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🌸─╮
 │
 │ *💰 CONVERSIÓN TIERNA* 💰
 │ ${monto} *${de}*
