@@ -21,7 +21,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     }, { quoted: m })
 }
 handler.help = ['ver']
-handler.tags = ['herramientas']
+handler.tags = ['tools']
 handler.command = /^ver$/i
 handler.group = true
 export default handler
