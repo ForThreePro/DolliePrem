@@ -286,11 +286,11 @@ export async function handler(chatUpdate) {
                 globalThis.db.data.settings[this.user.jid].botcommando += 1
                 m.plugin = name
 
-                const allowedWhenOff = ['bot']
+                const allowedWhenOff = ['onbot'] // <-- aquí pones los comandos que sí funcionan con bot apagado
 
-                if (chat?.bannedGrupo && !isOwner && !allowedWhenOff.includes(command)) {
-                    return
-                }
+if (chat?.bannedGrupo && !isOwner && !allowedWhenOff.includes(command)) {
+    return
+}
 
                 if (!m.chat.endsWith('g.us')) {
                     if (!global.owner.map((num) => num + '@s.whatsapp.net').includes(m.sender)) {
