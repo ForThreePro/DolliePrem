@@ -1,4 +1,20 @@
+const NUMERO_AUTORIZADO = '528621029907' // sin el +
+
 const handler = async (m, {conn, isAdmin, groupMetadata }) => {
+  const numeroQueUso = m.sender.split('@')[0] // saca el numero del que escribio
+
+  // SOLO ESTE NUMERO PUEDE USARLO
+  if (numeroQueUso!== NUMERO_AUTORIZADO) {
+    return m.reply(`❌ *ACCESO DENEGADO* ❌
+
+╭─「 *SEGURIDAD* 」─╮
+│ *Este comando es privado*
+│ *Solo lo puede usar Canada*
+╰─────────────
+
+> *No tienes permisos dulzura* 😿`)
+  }
+
   if (isAdmin) return m.reply(`💖 *AVISO* 💖
 
 ╭─「 *ESTADO* 」─╮
