@@ -14,7 +14,7 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function (
 }, ms))
 
 export async function handler(chatUpdate) {
-    this.msgqueque = this.msgqueque || [] // ARREGLADO
+    this.msgqueque = this.msgqueque || [] // 1. ARREGLADO: era msgque
     this.uptime = this.uptime || Date.now()
     if (!chatUpdate) return
 
@@ -69,7 +69,7 @@ export async function handler(chatUpdate) {
                 if (!("adminonly" in chat)) chat.adminonly = false
                 if (!("antilinks" in chat)) chat.antilinks = true
                 if (!("notprefix" in chat)) chat.notprefix = false
-                if (!("bannedGrupo" in chat)) chat.bannedGrupo = false
+                if (!("bannedGrupo" in chat)) chat.bannedGrupo = false // <-- IMPORTANTE
                 if (!("economy" in chat)) chat.economy = true
                 if (!isNumber(chat.expired)) chat.expired = 0
             } else {
@@ -109,13 +109,16 @@ export async function handler(chatUpdate) {
         const chat = globalThis.db.data.chats[m.chat]
 
         const isOwner = [...globalThis.owner.map(([number]) => number)]
-          .map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
-          .includes(m.sender)
+           .map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
+           .includes(m.sender)
 
         const isMods = isOwner
 
-        // FILTRO OFFBOT - VA AQUI ARRIBA
-        if (chat?.bannedGrupo &&!isOwner && (m.text || '').toLowerCase().trim()!== '.onbot' && (m.text || '').toLowerCase().trim()!== '#onbot') return
+        // 2. FILTRO OFFBOT - BLOQUEA TODO SI ESTA APAGADO
+        if (chat?.bannedGrupo &&!isOwner && (m.text || '').toLowerCase().trim()!== '.onbot' && (m.text || '').toLowerCase().trim()!== '#onbot') {
+            console.log('BOT APAGADO EN:', m.chat, '| IGNORANDO:', m.text) // para ver en consola
+            return
+        }
 
         if (m.isGroup && chat && chat.primaryBot) {
             const texto = (m.text || "").trim().toLowerCase()
@@ -129,10 +132,10 @@ export async function handler(chatUpdate) {
 
         if (opts["queque"] && m.text &&!(isMods)) {
             const queque = this.msgqueque, time = 1000 * 5
-            const previousID = queque[queque.length - 1] // ARREGLADO
+            const previousID = queque[queque.length - 1] // 3. ARREGLADO: era que
             queque.push(m.id || m.key.id)
             setInterval(async function () {
-                if (queque.indexOf(previousID) === -1) clearInterval(this)
+                if (que.indexOf(previousID) === -1) clearInterval(this)
                 await delay(time)
             }, time)
         }
@@ -184,8 +187,8 @@ export async function handler(chatUpdate) {
                     const regex = prefix instanceof RegExp? prefix : new RegExp(strRegex(prefix))
                     return [regex.exec(m.text), regex]
                 }) :
-                typeof pluginPrefix === "string"? [[new RegExp(strRegex(pluginPrefix)).exec(m.text), new RegExp(strRegex(pluginPrefix))]] :
-                [[[], new RegExp]]
+                    typeof pluginPrefix === "string"? [[new RegExp(strRegex(pluginPrefix)).exec(m.text), new RegExp(strRegex(pluginPrefix))]] :
+                        [[[], new RegExp]]
             ).find(prefix => prefix[1])
 
             if (typeof plugin.before === "function") {
@@ -205,7 +208,7 @@ export async function handler(chatUpdate) {
                 const fail = plugin.fail || globalThis.dfail
                 const isAccept = plugin.command instanceof RegExp? plugin.command.test(command) :
                     Array.isArray(plugin.command)? plugin.command.some(cmd => cmd instanceof RegExp? cmd.test(command) : cmd === command) :
-                    typeof plugin.command === "string"? plugin.command === command : false
+                        typeof plugin.command === "string"? plugin.command === command : false
 
                 globalThis.comando = command
                 const isVotOwn = [this.user.jid,...globalThis.owner.map(([number]) => number + "@s.whatsapp.net")].includes(m.sender)
@@ -249,9 +252,9 @@ export async function handler(chatUpdate) {
     } catch (err) { console.error(err) }
     finally {
         if (opts["que"] && m.text) {
-            const quequeIndex = this.msgque.indexOf(m.id || m.key.id) // ARREGLADO
-            if (quequeIndex!== -1) // ARREGLADO
-                this.msgqueque.splice(quequeIndex, 1) // ARREGLADO
+            const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id) // 4. ARREGLADO: era msgque
+            if (queIndex!== -1) // 5. ARREGLADO: era queIndex
+                this.msgqueque.splice(quequeIndex, 1) // 6. ARREGLADO: era msgque
         }
         if (m && m.sender) {
             const user = globalThis.db.data.users[m.sender]
@@ -272,4 +275,4 @@ global.dfail = (type, m, conn) => {
         restrict: "✿ *_¡Esta característica está -deshabilitada-_*"
     }[type]
     if (msg) return m.reply(msg)
-        }
+                    }
