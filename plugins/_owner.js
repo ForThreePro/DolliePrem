@@ -4,7 +4,7 @@ VERSION:3.0
 N:;Sofia;;;
 FN:Sofia
 ORG:𝐃𝐎𝐋𝐋𝐈𝐄 𝐁𝐎𝐓
-TEL;type=CELL;type=VOICE;waid=528621029907:+52 862 102 9907
+TEL;type=CELL;type=VOICE;waid=5218621029907:+52 1 862 102 9907
 END:VCARD`
 
     await conn.sendMessage(m.chat, {
