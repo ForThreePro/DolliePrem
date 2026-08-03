@@ -1,75 +1,80 @@
-import fetch from "node-fetch";
-import crypto from "crypto";
-import { FormData, File } from "formdata-node";
-import { fileTypeFromBuffer } from "file-type";
+import fetch from "node-fetch"
+import FormData from "form-data"
+import crypto from "crypto"
 
-let handler = async (m, { conn }) => {
-  let q = m.quoted ? m.quoted : m;
-  let mime = (q.msg || q).mimetype || "";
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    const key = Buffer.from('c2FzdWtl', 'base64').toString('utf-8')
+    let q = m.quoted? m.quoted : m
+    let mime = (q.msg || q).mimetype || ''
+    let urlTarget = text? text.trim() : ''
+    let start = Date.now() // INICIO DEL TIEMPO
 
-  if (!mime) {
-    return conn.reply(m.chat, "《✧》 Por favor, responde a un archivo válido.", m);
-  }
+    if (!urlTarget &&!/image\/(jpe?g|png)/.test(mime)) {
+        return conn.reply(m.chat, `❌ *Uso:* 
+Responde a una imagen o envía un link
+*${usedPrefix + command}*
 
-  try {
-    await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+*Formatos:* JPG / PNG`, m)
+    }
 
-    const media = await q.download();
-    const link = await uploadUguu(media);
+    await m.react('⏳')
+    try {
+        let finalUrl = urlTarget
 
-    const upscaleUrl = `${global.api.url2}/ia/upscale?image=${encodeURIComponent(link)}`;
+        if (!finalUrl && /image\/(jpe?g|png)/.test(mime)) {
+            let imgBuffer = await q.download()
+            let ext = mime.split('/')[1] || 'jpg'
+            let filename = 'media-' + crypto.randomBytes(8).toString('hex') + '.' + ext
 
-    const txt = `*乂 H D - U P S C A L E R 乂*\n\n`
-      + `*» Tamaño:* ${formatBytes(media.length)}`;
+            let formulario = new FormData()
+            formulario.append('file', imgBuffer, { filename, contentType: mime })
 
-    await conn.sendFile(m.chat, upscaleUrl, "upscaled.jpg", txt, m);
+            let resUpload = await fetch(`https://api.evogb.org/tools/upload?key=${key}`, {
+                method: 'POST',
+                body: formulario,
+                headers: {
+                   ...formulario.getHeaders(),
+                    'User-Agent': 'Mozilla/5.0'
+                }
+            })
+            let jsonUpload = await resUpload.json()
+            if (jsonUpload.status && jsonUpload.url) {
+                finalUrl = jsonUpload.url
+            } else {
+                await m.react('❌')
+                return m.reply(`❌ Error al subir la imagen: ${jsonUpload?.message || 'Sin respuesta'}`)
+            }
+        }
 
-    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
-  } catch (e) {
-    console.error(e);
-    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    m.reply(`《✧》 Error al procesar el archivo.\n\n*Detalles:* ${e.message}`);
-  }
-};
+        let resDl = await fetch(`https://api.evogb.org/tools/upscale?method=url&url=${encodeURIComponent(finalUrl)}&key=${key}`)
+        let contentType = resDl.headers.get("content-type")
 
-handler.help = ["hd"];
-handler.tags = ["tools"];
-handler.command = ["hd"];
+        if (contentType && contentType.includes("application/json")) {
+            let jsonDl = await resDl.json()
+            await m.react('❌')
+            return m.reply(`❌ Error de API: ${jsonDl.message || 'No se pudo mejorar la imagen.'}`)
+        }
 
-export default handler;
+        let buffer = await resDl.buffer()
+        let time = ((Date.now() - start) / 1000).toFixed(2) // CALCULAR TIEMPO
+        
+        let info = `✅ *Imagen mejorada con IA*
 
-function formatBytes(bytes) {
-  if (!bytes) return "0 B";
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+⏱️ *Tiempo:* ${time} segundos
+📎 *Comando:* ${command}`
+
+        await conn.sendMessage(m.chat, { image: buffer, caption: info }, { quoted: m })
+        await m.react('✅')
+
+    } catch (e) {
+        console.error(e)
+        await m.react('❌')
+        m.reply(`⚠️ Error de sistema. Intenta de nuevo en unos segundos.`)
+    }
 }
 
-async function uploadUguu(buffer) {
-  const type = await fileTypeFromBuffer(buffer);
+handler.help = ['upscale', 'remini']
+handler.tags = ['tools']
+handler.command = /^(upscale|remini|hd|mejorar)$/i
 
-  if (!type) throw new Error("No se pudo detectar el tipo de archivo.");
-
-  const form = new FormData();
-  form.set(
-    "files[]",
-    new File(
-      [buffer],
-      `${crypto.randomBytes(6).toString("hex")}.${type.ext}`,
-      { type: type.mime }
-    )
-  );
-
-  const res = await fetch("https://uguu.se/upload.php", {
-    method: "POST",
-    body: form,
-    headers: form.headers
-  });
-
-  const json = await res.json();
-
-  if (!res.ok) throw new Error(json.message || "Error al subir el archivo.");
-  if (!json.success || !json.files?.length) throw new Error("La subida falló.");
-
-  return json.files[0].url;
-}
+export default handler
