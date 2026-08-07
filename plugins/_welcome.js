@@ -15,13 +15,14 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
 
-    // FIX NUCLEAR PARA @lid - BUSCAMOS EN PARTICIPANTS
-    let participant = metadata.participants.find(p => p.id === who || p.id.includes(who.replace('@lid','')))
-    let realJid = participant?.id || who
-    if (realJid.endsWith('@lid')) realJid = realJid.replace('@lid', '@s.whatsapp.net')
-
+    // FIX DEFINITIVO PARA NUMERO RANDOM
+    let realJid = who
+    if (who.endsWith('@lid')) {
+        // Buscamos el numero real en participants
+        let p = metadata.participants.find(v => v.id.includes(who.split('@')[0]))
+        realJid = p?.id || who.replace('@lid', '@s.whatsapp.net')
+    }
     let userNum = realJid.split('@')[0]
-    let userName = participant?.name || participant?.notify || userNum // nombre si hay
 
     let groupName = metadata.subject
     let total = metadata.participants.length
@@ -29,26 +30,17 @@ handler.all = async function (m) {
     let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos`
     let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos`
 
-    const replace = (txt) => txt
-      .replace(/@user/g, `@${userNum}`)
-      .replace(/@group/g, groupName)
-      .replace(/@count/g, total)
+    const replace = (txt) => txt.replace(/@user/g, `@${userNum}`).replace(/@group/g, groupName).replace(/@count/g, total)
 
-    // FOTO USUARIO - CON TRY CATCH DOBLE
+    // FOTO DEL GRUPO - PORQUE LA DEL USER YA NO DEJA WA
     let imgBuffer
     try {
-        let ppUrl = await this.profilePictureUrl(realJid, 'image')
+        let ppUrl = await this.profilePictureUrl(m.chat, 'image')
         let { data } = await axios.get(ppUrl, { responseType: 'arraybuffer' })
         imgBuffer = Buffer.from(data)
     } catch {
-        try { // segundo intento por si el primero falla
-            let ppUrl2 = await this.profilePictureUrl(userNum + '@s.whatsapp.net', 'image')
-            let { data } = await axios.get(ppUrl2, { responseType: 'arraybuffer' })
-            imgBuffer = Buffer.from(data)
-        } catch {
-            let { data } = await axios.get('https://files.evogb.win/wt9HaN.jpg', { responseType: 'arraybuffer' })
-            imgBuffer = Buffer.from(data)
-        }
+        let { data } = await axios.get('https://files.evogb.win/wt9HaN.jpg', { responseType: 'arraybuffer' })
+        imgBuffer = Buffer.from(data)
     }
 
     let txt = ''
