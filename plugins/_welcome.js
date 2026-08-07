@@ -48,29 +48,26 @@ handler.all = async function (m) {
     // REEMPLAZAR VARIABLES
     let replace = (txt) => {
         return txt
-        .replace(/@user/g, user)
-        .replace(/@group/g, groupName)
-        .replace(/@count/g, total)
+       .replace(/@user/g, user)
+       .replace(/@group/g, groupName)
+       .replace(/@count/g, total)
     }
 
     let txt = ''
     let audioPath = ''
-    let defaultAudio = ''
 
     // ===== ENTRADA =====
     if (m.messageStubType === 27) {
         if (chat.welcome === false) return
         txt = replace(chat.sWelcome)
-        audioPath = path.join('./media', `welcome_${m.chat}.mp3`) // audio personalizado
-        defaultAudio = path.join(process.cwd(), 'bienvenida.mp3') // audio por defecto raíz
+        audioPath = path.join('./media', `welcome_${m.chat}.mp3`) // SOLO AUDIO DEL GRUPO
     }
 
     // ===== SALIDA =====
     if (m.messageStubType === 28 || m.messageStubType === 32) {
         if (chat.bye === false) return
         txt = replace(chat.sBye)
-        audioPath = path.join('./media', `bye_${m.chat}.mp3`) // audio personalizado
-        defaultAudio = path.join(process.cwd(), 'despedida.mp3') // audio por defecto raíz
+        audioPath = path.join('./media', `bye_${m.chat}.mp3`) // SOLO AUDIO DEL GRUPO
     }
 
     if (!txt) return
@@ -82,18 +79,11 @@ handler.all = async function (m) {
         mentions: [realJid]
     })
 
-    // LOGICA DE AUDIO: 1ro busca el del grupo, si no hay usa el de la raíz
-    let audioToSend = null
+    // SOLO MANDAR AUDIO SI EL GRUPO TIENE UNO GUARDADO
     if (fs.existsSync(audioPath)) {
-        audioToSend = fs.readFileSync(audioPath)
-    } else if (fs.existsSync(defaultAudio)) {
-        audioToSend = fs.readFileSync(defaultAudio)
-    }
-
-    if (audioToSend) {
         setTimeout(async () => {
             await this.sendMessage(m.chat, {
-                audio: audioToSend,
+                audio: fs.readFileSync(audioPath),
                 mimetype: 'audio/mpeg',
                 ptt: false
             })
