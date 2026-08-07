@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import fs from 'fs'
 import path from 'path'
 
@@ -7,67 +8,75 @@ handler.all = async function (m) {
     if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
     let chat = global.db.data.chats[m.chat]
 
+    // ACTIVOS POR DEFECTO
     if (chat.welcome == null) chat.welcome = true
     if (chat.bye == null) chat.bye = true
 
-    if (!chat.sWelcome) chat.sWelcome = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕"`
-    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n"Nos vemos prontito 💫"`
+    // MENSAJES POR DEFECTO FRESITA
+    if (!chat.sWelcome) chat.sWelcome = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕\nPonte cómodo y disfruta"\n\n> *Fresita dice: Nuevo angelito en el grupo*`
+    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n\n"Nos vemos prontito 💫"\n\n> *Fresita dice: Te vamos a extrañar* 🍓`
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
 
-    // CONVERTIR LID A JID
-    let jid = who
-    if (who.endsWith('@lid')) jid = who.replace('@lid', '@s.whatsapp.net')
+    // CONVERTIR @lid A JID REAL PARA MENCION
+    let realJid = who
+    if (who.endsWith('@lid')) {
+        realJid = who.replace('@lid', '@s.whatsapp.net')
+    }
 
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
+    let user = '@' + realJid.split('@')[0]
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    // FOTO CON METODO NATIVO DE BAILEYS
+    // FOTO DE PERFIL - PRIORIDAD USUARIO
     let img
     try {
-        img = await this.profilePictureUrl(jid, 'image').catch(() => null)
-        if (img) {
-            img = await this.getFile(img) // descarga y convierte a buffer
-            img = img.data
-        } else {
-            throw new Error('No tiene foto')
-        }
-    } catch {
-        img = { url: 'https://i.imgur.com/2yZ8WbF.jpg' } // default fresita
+        let pp = await this.profilePictureUrl(realJid, 'image')
+        // DESCARGAMOS LA FOTO A BUFFER PARA QUE NO FALLE
+        img = await fetch(pp, { timeout: 5000 }).then(v => v.buffer())
+    } catch (e) {
+        console.log('No tiene foto, usando default:', e)
+        img = { url: 'https://files.evogb.win/wt9HaN.jpg' } // default si no tiene
+    }
+
+    // REEMPLAZAR VARIABLES
+    let replace = (txt) => {
+        return txt
+      .replace(/@user/g, user)
+      .replace(/@group/g, groupName)
+      .replace(/@count/g, total)
     }
 
     let txt = ''
     let audioPath = ''
 
+    // ===== ENTRADA =====
     if (m.messageStubType === 27) {
         if (chat.welcome === false) return
-        txt = chat.sWelcome
-        .replace(/@user/g, `@${jid.split('@')[0]}`)
-        .replace(/@group/g, groupName)
-        .replace(/@count/g, total)
+        txt = replace(chat.sWelcome)
         audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
     }
 
+    // ===== SALIDA =====
     if (m.messageStubType === 28 || m.messageStubType === 32) {
         if (chat.bye === false) return
-        txt = chat.sBye
-        .replace(/@user/g, `@${jid.split('@')[0]}`)
-        .replace(/@group/g, groupName)
-        .replace(/@count/g, total)
+        txt = replace(chat.sBye)
         audioPath = path.join('./media', `bye_${m.chat}.mp3`)
     }
 
     if (!txt) return
 
+    // MANDAR IMAGEN + TEXTO + MENCION
     await this.sendMessage(m.chat, {
-        image: img,
+        image: img, // aqui ya va el buffer de la foto del usuario
         caption: txt,
-        mentions: [jid] // MENCION IMPORTANTE
+        mentions: [realJid] // MENCION AZUL
     })
 
+    // SOLO MANDAR AUDIO SI EL GRUPO TIENE UNO GUARDADO
     if (fs.existsSync(audioPath)) {
         setTimeout(async () => {
             await this.sendMessage(m.chat, {
