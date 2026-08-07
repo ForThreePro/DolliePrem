@@ -8,6 +8,7 @@ handler.all = async function (m) {
     let chat = global.db.data.chats[m.chat] || {}
     chat.welcome??= true
     chat.bye??= true
+    chat.cacheNombres??= {} // CACHE PARA GUARDAR NOMBRES
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
@@ -15,26 +16,30 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
 
-    // FIX CLAVE: GUARDAR JID ANTES DE QUE LO BOTEN
     let realJid = who
     if (who.endsWith('@lid')) {
         let p = metadata.participants.find(v => v.id.includes(who.split('@')[0]))
         realJid = p?.id || who.replace('@lid', '@s.whatsapp.net')
     }
+    let userNum = realJid.split('@')[0]
 
-    // SI ES BYE/KICK Y YA NO ESTA EN PARTICIPANTS, USAMOS EL JID TAL CUAL
-    if ((m.messageStubType === 28 || m.messageStubType === 32) &&!metadata.participants.find(p => p.id === realJid)) {
-        realJid = who.replace('@lid', '@s.whatsapp.net')
+    // GUARDAR NOMBRE EN CACHE CUANDO ENTRA
+    if (m.messageStubType === 27) {
+        let p = metadata.participants.find(v => v.id === realJid)
+        chat.cacheNombres[userNum] = p?.name || p?.notify || userNum
     }
 
-    let userNum = realJid.split('@')[0]
+    // SACAR NOMBRE DEL CACHE CUANDO SALE
+    let nombreCache = chat.cacheNombres[userNum] || userNum
+    delete chat.cacheNombres[userNum] // borramos para que no se llene
+
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos`
-    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos`
+    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count`
+    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count`
 
-    const replace = (txt) => txt.replace(/@user/g, `@${userNum}`).replace(/@group/g, groupName).replace(/@count/g, total)
+    const replace = (txt) => txt.replace(/@user/g, `@${nombreCache}`).replace(/@group/g, groupName).replace(/@count/g, total)
 
     // FOTO GRUPO
     let imgBuffer
@@ -48,25 +53,18 @@ handler.all = async function (m) {
     }
 
     let txt = ''
-    let audioPath = ''
-
-    if (m.messageStubType === 27 && chat.welcome) {
-        txt = replace(sWelcome)
-        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
-    }
-    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
-        txt = replace(sBye)
-        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
-    }
+    if (m.messageStubType === 27 && chat.welcome) txt = replace(sWelcome)
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = replace(sBye)
     if (!txt) return
 
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: [realJid], // AQUI ESTA LA MENCION
-        contextInfo: { mentionedJid: [realJid] } // Y AQUI TAMBIEN
+        mentions: [realJid],
+        contextInfo: { mentionedJid: [realJid] }
     })
 
+    let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
     if (fs.existsSync(audioPath)) {
         await this.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), mimetype: 'audio/mpeg', ptt: false })
     }
