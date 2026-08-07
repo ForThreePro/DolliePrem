@@ -8,8 +8,13 @@ handler.all = async function (m) {
     if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
     let chat = global.db.data.chats[m.chat]
 
+    // ACTIVOS POR DEFECTO
     if (chat.welcome == null) chat.welcome = true
     if (chat.bye == null) chat.bye = true
+
+    // MENSAJES POR DEFECTO FRESITA
+    if (!chat.sWelcome) chat.sWelcome = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕\nPonte cómodo y disfruta"\n\n> *Fresita dice: Nuevo angelito en el grupo*`
+    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n\n"Nos vemos prontito 💫"\n\n> *Fresita dice: Te vamos a extrañar* 🍓`
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
@@ -28,8 +33,10 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
     let user = '@' + realJid.split('@')[0]
+    let groupName = metadata.subject
+    let total = metadata.participants.length
 
-    // FOTO
+    // FOTO DE PERFIL
     let img
     try {
         let pp = await this.profilePictureUrl(realJid, 'image')
@@ -38,59 +45,55 @@ handler.all = async function (m) {
         img = { url: 'https://files.evogb.win/wt9HaN.jpg' }
     }
 
-    let txt = ''
-    let audio = ''
-
-    // WELCOME
-    if (m.messageStubType === 27) {
-        if (chat.welcome === false) return
-        audio = 'bienvenida.mp3'
-        txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
-│
-│ ✨ *¡Nuevo miembrito llegó!*
-│
-│ 🎀 *Usuario:* ${user}
-│ 💫 *Grupo:* ${metadata.subject}
-│ ⭐ *Total:* ${metadata.participants.length} miembritos
-│
-│ "Bienvenido a la familia 🎀
-│ Ponte cómodo y disfruta 💫"
-│
-│ > *Dollie dice: Nuevo angelito en el grupo*
-╰─────────────────────────╯`
+    // REEMPLAZAR VARIABLES
+    let replace = (txt) => {
+        return txt
+        .replace(/@user/g, user)
+        .replace(/@group/g, groupName)
+        .replace(/@count/g, total)
     }
 
-    // BYE
+    let txt = ''
+    let audioPath = ''
+    let defaultAudio = ''
+
+    // ===== ENTRADA =====
+    if (m.messageStubType === 27) {
+        if (chat.welcome === false) return
+        txt = replace(chat.sWelcome)
+        audioPath = path.join('./media', `welcome_${m.chat}.mp3`) // audio personalizado
+        defaultAudio = path.join(process.cwd(), 'bienvenida.mp3') // audio por defecto raíz
+    }
+
+    // ===== SALIDA =====
     if (m.messageStubType === 28 || m.messageStubType === 32) {
         if (chat.bye === false) return
-        audio = 'despedida.mp3'
-        txt = `╭─🎀─❒ *『 𝗗𝗢𝗟𝗜𝗘 𝗕𝗢𝗧 』* ❒─🎀─╮
-│
-│ 💫 *Se fue un miembrito*
-│
-│ 🎀 *Usuario:* ${user}
-│ ✨ *Grupo:* ${metadata.subject}
-│ ⭐ *Quedamos:* ${metadata.participants.length} miembritos
-│
-│ "Nos vemos prontito 💫"
-│
-│ > *Dollie dice: Te vamos a extrañar* 🎀
-╰─────────────────────────╯`
+        txt = replace(chat.sBye)
+        audioPath = path.join('./media', `bye_${m.chat}.mp3`) // audio personalizado
+        defaultAudio = path.join(process.cwd(), 'despedida.mp3') // audio por defecto raíz
     }
 
     if (!txt) return
 
+    // MANDAR IMAGEN + TEXTO
     await this.sendMessage(m.chat, {
         image: img,
         caption: txt,
         mentions: [realJid]
     })
 
-    let audioPath = path.join(process.cwd(), audio)
+    // LOGICA DE AUDIO: 1ro busca el del grupo, si no hay usa el de la raíz
+    let audioToSend = null
     if (fs.existsSync(audioPath)) {
+        audioToSend = fs.readFileSync(audioPath)
+    } else if (fs.existsSync(defaultAudio)) {
+        audioToSend = fs.readFileSync(defaultAudio)
+    }
+
+    if (audioToSend) {
         setTimeout(async () => {
             await this.sendMessage(m.chat, {
-                audio: fs.readFileSync(audioPath),
+                audio: audioToSend,
                 mimetype: 'audio/mpeg',
                 ptt: false
             })
