@@ -12,22 +12,22 @@ handler.all = async function (m) {
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
-    let realJid = who.replace('@lid', '@s.whatsapp.net')
-    let userNum = realJid.split('@')[0]
 
+    // NUCLEAR: Buscar el jid real en participants
     let metadata = await this.groupMetadata(m.chat).catch(() => {})
     if (!metadata) return
+
+    let participant = metadata.participants.find(p => p.id === who || p.id.includes(who.split('@')[0]))
+    let realJid = participant?.id || who.replace('@lid', '@s.whatsapp.net')
+    let userNum = realJid.split('@')[0]
 
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó a @group!*\n\n🍓 *Usuario:* @user\n🍓 *Somos:* @count`
-    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita de @group*\n\n🍓 *Usuario:* @user\n🍓 *Quedamos:* @count`
-
-    // FOTO DEL GRUPO
+    // FOTO DEL USUARIO - PRIORIDAD
     let imgBuffer
     try {
-        let ppUrl = await this.profilePictureUrl(m.chat, 'image').catch(() => null)
+        let ppUrl = await this.profilePictureUrl(realJid, 'image').catch(() => null)
         let { data } = await axios.get(ppUrl || 'https://files.evogb.win/wt9HaN.jpg', { responseType: 'arraybuffer' })
         imgBuffer = Buffer.from(data)
     } catch {
@@ -35,23 +35,38 @@ handler.all = async function (m) {
         imgBuffer = Buffer.from(data)
     }
 
+    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó a ${groupName}!*\n\n🍓 *Usuario:* @${userNum}\n🍓 *Somos:* ${total} miembritos\n\n"Bienvenid@ a la canasta fresita 💕"`
+    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita de ${groupName}*\n\n🍓 *Usuario:* @${userNum}\n🍓 *Quedamos:* ${total} miembritos\n"Nos vemos prontito 💫"`
+
     let txt = ''
-    if (m.messageStubType === 27 && chat.welcome) txt = sWelcome.replace('@group', groupName).replace('@count', total).replace('@user', `@${userNum}`)
-    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = sBye.replace('@group', groupName).replace('@count', total).replace('@user', `@${userNum}`)
+    let audioPath = ''
+
+    if (m.messageStubType === 27 && chat.welcome) {
+        txt = sWelcome
+        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
+    }
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
+        txt = sBye
+        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
+    }
     if (!txt) return
 
-    // TRUCO FINAL: FORZAR MENCION CON contextInfo
+    // ENVIAR CON 2 FORMAS DE MENCION - LA QUE ME DISTE
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
+        mentions: [realJid], // forma 1
         contextInfo: {
-            mentionedJid: [realJid] // <- Aquí está el truco
+            mentionedJid: [realJid] // forma 2
         }
     })
 
-    let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
     if (fs.existsSync(audioPath)) {
-        await this.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), mimetype: 'audio/mpeg' })
+        await this.sendMessage(m.chat, {
+            audio: fs.readFileSync(audioPath),
+            mimetype: 'audio/mpeg',
+            ptt: false
+        })
     }
 }
 export default handler
