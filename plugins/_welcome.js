@@ -20,26 +20,37 @@ handler.all = async function (m) {
     let realJid = rawJid.replace('@lid', '@s.whatsapp.net')
     let userNum = realJid.split('@')[0]
 
-    // GUARDAR NOMBRE/NUMERO CUANDO ENTRA
-    if (m.messageStubType === 27) {
-        let p = metadata.participants.find(v => v.id.includes(userNum))
-        chat.cacheNombres[userNum] = p?.name || p?.notify || userNum
+    // 1. BUSCAR NOMBRE EN PARTICIPANTS
+    let p = metadata.participants.find(v => v.id.includes(userNum))
+    let nombre = p?.name || p?.notify || p?.short || userNum
+
+    // 2. SI NO ESTA, BUSCAR EN CACHE
+    if (!p && chat.cacheNombres[userNum]) {
+        nombre = chat.cacheNombres[userNum]
     }
 
-    let nombreCache = chat.cacheNombres[userNum] || userNum
+    // 3. SI NO ESTA EN CACHE, FORZAR CON GETCONTACT
+    if (!p &&!chat.cacheNombres[userNum]) {
+        try {
+            let contact = await this.getContact(realJid)
+            nombre = contact?.name || contact?.notify || userNum
+        } catch {}
+    }
+
+    // GUARDAR EN CACHE CUANDO ENTRA
+    if (m.messageStubType === 27) {
+        chat.cacheNombres[userNum] = nombre
+    }
     if (m.messageStubType!== 27) delete chat.cacheNombres[userNum]
 
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó a @group!*\n\n🍓 *Usuario:* @user\n🍓 *Somos:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕"`
-    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita de @group*\n\n🍓 *Se fue:* @user\n🍓 *Quedamos:* @count miembritos\n"Te vamos a extrañar 🍓"`
+    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count`
+    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count`
 
-    // REPLACE DIFERENTE
-    const replaceWelcome = (txt) => txt.replace(/@user/g, `@${nombreCache}`).replace(/@group/g, groupName).replace(/@count/g, total)
-    const replaceBye = (txt) => txt.replace(/@user/g, `${nombreCache}`).replace(/@group/g, groupName).replace(/@count/g, total)
+    const replace = (txt) => txt.replace(/@user/g, `@${nombre}`).replace(/@group/g, groupName).replace(/@count/g, total)
 
-    // FOTO GRUPO
     let imgBuffer
     try {
         let ppUrl = await this.profilePictureUrl(m.chat, 'image')
@@ -51,23 +62,20 @@ handler.all = async function (m) {
     }
 
     let txt = ''
-    let mentions = []
-
-    if (m.messageStubType === 27 && chat.welcome) {
-        txt = replaceWelcome(sWelcome)
-        mentions = [realJid] // WELCOME SI MENCIONA
-    }
-    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
-        txt = replaceBye(sBye)
-        mentions = [] // BYE NO MENCIONA PARA EVITAR +9786
-    }
+    if (m.messageStubType === 27 && chat.welcome) txt = replace(sWelcome)
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = replace(sBye)
     if (!txt) return
 
+    // FORZAR MENCION SIEMPRE
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: mentions,
-        contextInfo: { mentionedJid: mentions }
+        mentions: [realJid], // SIEMPRE MENCIONA
+        contextInfo: {
+            mentionedJid: [realJid],
+            forwardingScore: 999,
+            isForwarded: true
+        }
     })
 
     let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
