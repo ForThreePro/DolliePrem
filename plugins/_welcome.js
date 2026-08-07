@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import fs from 'fs'
 import path from 'path'
 
@@ -26,14 +25,18 @@ handler.all = async function (m) {
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    // FOTO EN BUFFER - ESTA ES LA QUE SI JALA
+    // FOTO CON METODO NATIVO DE BAILEYS
     let img
     try {
-        let pp = await this.profilePictureUrl(jid, 'image')
-        let res = await fetch(pp)
-        img = await res.buffer() // LO CONVERTIMOS A BUFFER
+        img = await this.profilePictureUrl(jid, 'image').catch(() => null)
+        if (img) {
+            img = await this.getFile(img) // descarga y convierte a buffer
+            img = img.data
+        } else {
+            throw new Error('No tiene foto')
+        }
     } catch {
-        img = { url: 'https://i.imgur.com/2yZ8WbF.jpg' } // default si no tiene foto
+        img = { url: 'https://i.imgur.com/2yZ8WbF.jpg' } // default fresita
     }
 
     let txt = ''
@@ -42,28 +45,27 @@ handler.all = async function (m) {
     if (m.messageStubType === 27) {
         if (chat.welcome === false) return
         txt = chat.sWelcome
-         .replace(/@user/g, `@${jid.split('@')[0]}`)
-         .replace(/@group/g, groupName)
-         .replace(/@count/g, total)
+        .replace(/@user/g, `@${jid.split('@')[0]}`)
+        .replace(/@group/g, groupName)
+        .replace(/@count/g, total)
         audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
     }
 
     if (m.messageStubType === 28 || m.messageStubType === 32) {
         if (chat.bye === false) return
         txt = chat.sBye
-         .replace(/@user/g, `@${jid.split('@')[0]}`)
-         .replace(/@group/g, groupName)
-         .replace(/@count/g, total)
+        .replace(/@user/g, `@${jid.split('@')[0]}`)
+        .replace(/@group/g, groupName)
+        .replace(/@count/g, total)
         audioPath = path.join('./media', `bye_${m.chat}.mp3`)
     }
 
     if (!txt) return
 
-    // MANDAMOS LA IMAGEN COMO BUFFER
     await this.sendMessage(m.chat, {
-        image: img, // buffer
+        image: img,
         caption: txt,
-        mentions: [jid]
+        mentions: [jid] // MENCION IMPORTANTE
     })
 
     if (fs.existsSync(audioPath)) {
