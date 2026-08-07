@@ -8,7 +8,7 @@ handler.all = async function (m) {
     let chat = global.db.data.chats[m.chat] || {}
     chat.welcome??= true
     chat.bye??= true
-    chat.cacheNombres??= {} // CACHE PARA GUARDAR NOMBRES
+    chat.cacheNombres??= {}
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
@@ -16,22 +16,19 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
 
-    let realJid = who
-    if (who.endsWith('@lid')) {
-        let p = metadata.participants.find(v => v.id.includes(who.split('@')[0]))
-        realJid = p?.id || who.replace('@lid', '@s.whatsapp.net')
-    }
+    // FIX NUCLEAR PARA @lid EN REMOVE
+    let rawJid = who
+    let realJid = rawJid.replace('@lid', '@s.whatsapp.net') // FORZAR CONVERSION
     let userNum = realJid.split('@')[0]
 
-    // GUARDAR NOMBRE EN CACHE CUANDO ENTRA
+    // GUARDAR NOMBRE CUANDO ENTRA
     if (m.messageStubType === 27) {
-        let p = metadata.participants.find(v => v.id === realJid)
+        let p = metadata.participants.find(v => v.id.includes(userNum))
         chat.cacheNombres[userNum] = p?.name || p?.notify || userNum
     }
 
-    // SACAR NOMBRE DEL CACHE CUANDO SALE
     let nombreCache = chat.cacheNombres[userNum] || userNum
-    delete chat.cacheNombres[userNum] // borramos para que no se llene
+    if (m.messageStubType!== 27) delete chat.cacheNombres[userNum]
 
     let groupName = metadata.subject
     let total = metadata.participants.length
@@ -41,7 +38,6 @@ handler.all = async function (m) {
 
     const replace = (txt) => txt.replace(/@user/g, `@${nombreCache}`).replace(/@group/g, groupName).replace(/@count/g, total)
 
-    // FOTO GRUPO
     let imgBuffer
     try {
         let ppUrl = await this.profilePictureUrl(m.chat, 'image')
@@ -57,11 +53,16 @@ handler.all = async function (m) {
     if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = replace(sBye)
     if (!txt) return
 
+    // MANDAR MENSAJE CON MENCION FORZADA
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: [realJid],
-        contextInfo: { mentionedJid: [realJid] }
+        mentions: [realJid], // YA VIENE COMO @s.whatsapp.net
+        contextInfo: {
+            mentionedJid: [realJid],
+            forwardingScore: 1,
+            isForwarded: true
+        }
     })
 
     let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
