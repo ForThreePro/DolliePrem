@@ -11,7 +11,7 @@ handler.all = async function (m) {
     if (chat.bye == null) chat.bye = true
 
     if (!chat.sWelcome) chat.sWelcome = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕\nPonte cómodo y disfruta"\n\n> *Fresita dice: Nuevo angelito en el grupo*`
-    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n"Nos vemos prontito 💫"\n\n> *Fresita dice: Te vamos a extrañar* 🍓`
+    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n\n"Nos vemos prontito 💫"\n\n> *Fresita dice: Te vamos a extrañar* 🍓`
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
@@ -25,14 +25,15 @@ handler.all = async function (m) {
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    // FOTO DE PERFIL - METODO QUE SI JALA EN TODOS LOS HOST
+    // FOTO DE PERFIL - FORZAMOS BUFFER
     let img
     try {
         let pp = await this.profilePictureUrl(realJid, 'image')
-        let { data } = await this.getFile(pp) // BAILEYS LO DESCARGA SOLO
-        img = data // buffer
-    } catch {
-        img = { url: 'https://files.evogb.win/wt9HaN.jpg' } // default si no tiene
+        img = await this.getFile(pp)
+        img = img.data // AQUI SACAMOS SOLO EL BUFFER
+    } catch (e) {
+        console.log('Error foto usuario:', e)
+        img = { url: 'https://files.evogb.win/wt9HaN.jpg' } // default
     }
 
     let replace = (txt) => txt.replace(/@user/g, user).replace(/@group/g, groupName).replace(/@count/g, total)
@@ -55,7 +56,7 @@ handler.all = async function (m) {
     if (!txt) return
 
     await this.sendMessage(m.chat, {
-        image: img, // ya no es link, es buffer
+        image: img, // buffer
         caption: txt,
         mentions: [realJid]
     })
