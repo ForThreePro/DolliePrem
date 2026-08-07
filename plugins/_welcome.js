@@ -11,8 +11,6 @@ handler.all = async function (m) {
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
-
-    // FIX 1: Convertir @lid y también forzar @s.whatsapp.net
     let realJid = who.replace(/@lid$/, '@s.whatsapp.net')
 
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
@@ -24,27 +22,20 @@ handler.all = async function (m) {
     let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count`
     let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count`
 
-    // FIX 2: DETECTAR FOTO CON DOBLE INTENTO
+    // TRUCO: OBLIGAR A BAILEYS A BUSCAR LA FOTO
     let imgBuffer = null
-    let ppUrl = null
     try {
-        // Intento 1: Foto del usuario
-        ppUrl = await this.profilePictureUrl(realJid, 'image')
-    } catch {
-        try {
-            // Intento 2: A veces Baileys necesita 'preview'
-            ppUrl = await this.profilePictureUrl(realJid, 'preview')
-        } catch {
-            // Intento 3: Foto del grupo como último recurso
-            ppUrl = await this.profilePictureUrl(m.chat, 'image').catch(() => null)
-        }
-    }
+        // 1. Primero intentamos obtener el contacto para "desbloquear" la foto
+        await this.onWhatsApp(realJid).catch(() => null)
 
-    if (ppUrl) {
-        try {
-            let res = await axios.get(ppUrl, { responseType: 'arraybuffer', timeout: 7000 })
-            imgBuffer = Buffer.from(res.data)
-        } catch {}
+        // 2. Ahora sí pedimos la foto
+        let ppUrl = await this.profilePictureUrl(realJid, 'image')
+        let res = await axios.get(ppUrl, { responseType: 'arraybuffer', timeout: 8000 })
+        imgBuffer = Buffer.from(res.data)
+    } catch (e) {
+        console.log('No se pudo foto de usuario:', e.message)
+        // Si falla, usamos default
+        imgBuffer = null
     }
 
     let txt = ''
