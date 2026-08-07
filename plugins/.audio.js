@@ -17,7 +17,6 @@ let handler = async (m, { conn, isAdmin, command }) => {
     let finalPath = ''
     let tipo = ''
     
-    // VER QUE COMANDO USO
     if (command === 'audiowelcome') {
         finalPath = path.join(dir, `welcome_${m.chat}.mp3`)
         tipo = 'bienvenida'
@@ -32,7 +31,7 @@ let handler = async (m, { conn, isAdmin, command }) => {
     await execAsync(`ffmpeg -i ${tempPath} -ar 44100 -ac 2 -b:a 128k ${finalPath}`)
     fs.unlinkSync(tempPath)
     
-    return m.reply(`🍓 *LISTO FRESITA* 💕\nAudio de ${tipo} guardado para este grupo\nCada que ${tipo === 'bienvenida' ? 'entre' : 'salga'} alguien sonará este audio`)
+    return m.reply(`🍓 *LISTO FRESITA* 💕\nAudio de ${tipo} guardado para este grupo\nYa no usará el de la raíz. Ahora usará este personalizado`)
 }
 handler.help = ['audiowelcome', 'audiobye']
 handler.tags = ['group']
