@@ -1,65 +1,58 @@
 import fs from 'fs'
 import path from 'path'
-import axios from 'axios' // usa axios en vez de fetch
+import axios from 'axios'
 
 let handler = m => m
 handler.all = async function (m) {
     if (!m.messageStubType ||!m.isGroup) return
-    if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
-    let chat = global.db.data.chats[m.chat]
-
+    let chat = global.db.data.chats[m.chat] || {}
     if (chat.welcome == null) chat.welcome = true
     if (chat.bye == null) chat.bye = true
 
-    if (!chat.sWelcome) chat.sWelcome = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕"`
-    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n"Nos vemos prontito 💫"`
-
     let who = m.messageStubParameters?.[0]
     if (!who) return
-
     let realJid = who.endsWith('@lid')? who.replace('@lid', '@s.whatsapp.net') : who
+
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
-
     let user = '@' + realJid.split('@')[0]
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    // FOTO - METODO NUCLEAR
-    let img
+    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count`
+    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count`
+
+    // BAJAR FOTO
+    let imgBuffer
     try {
         let pp = await this.profilePictureUrl(realJid, 'image')
-        let res = await axios.get(pp, { responseType: 'arraybuffer', timeout: 7000 })
-        img = Buffer.from(res.data) // FORZAMOS A BUFFER
+        let res = await axios.get(pp, { responseType: 'arraybuffer' })
+        imgBuffer = Buffer.from(res.data)
     } catch {
-        img = { url: 'https://files.evogb.win/wt9HaN.jpg' }
+        imgBuffer = null
     }
-
-    let replace = (txt) => txt.replace(/@user/g, user).replace(/@group/g, groupName).replace(/@count/g, total)
 
     let txt = ''
-    let audioPath = ''
-
-    if (m.messageStubType === 27) {
-        if (!chat.welcome) return
-        txt = replace(chat.sWelcome)
-        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
-    }
-
-    if (m.messageStubType === 28 || m.messageStubType === 32) {
-        if (!chat.bye) return
-        txt = replace(chat.sBye)
-        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
-    }
-
+    if (m.messageStubType === 27 && chat.welcome) txt = sWelcome.replace(/@user/g, user).replace(/@group/g, groupName).replace(/@count/g, total)
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = sBye.replace(/@user/g, user).replace(/@group/g, groupName).replace(/@count/g, total)
     if (!txt) return
 
-    await this.sendMessage(m.chat, {
-        image: img, // BUFFER SI O SI
-        caption: txt,
-        mentions: [realJid]
-    })
+    // TRUCO: MANDAR IMAGEN Y TEXTO SEPARADO SI FALLA
+    if (imgBuffer) {
+        await this.sendMessage(m.chat, {
+            image: imgBuffer,
+            caption: txt,
+            mentions: [realJid]
+        })
+    } else {
+        await this.sendMessage(m.chat, {
+            image: { url: 'https://files.evogb.win/wt9HaN.jpg' },
+            caption: txt,
+            mentions: [realJid]
+        })
+    }
 
+    let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
     if (fs.existsSync(audioPath)) {
         await this.sendMessage(m.chat, {
             audio: fs.readFileSync(audioPath),
