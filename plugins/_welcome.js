@@ -8,7 +8,7 @@ handler.all = async function (m) {
     let chat = global.db.data.chats[m.chat] || {}
     chat.welcome??= true
     chat.bye??= true
-    chat.cacheNombres??= {} // PARA GUARDAR NOMBRES
+    chat.cacheNombres??= {} // CACHE PARA RECORDAR NOMBRES
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
@@ -16,17 +16,18 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
 
-    // FIX NUCLEAR: CONVERTIR @lid A @s.whatsapp.net SIEMPRE
-    let realJid = who.replace('@lid', '@s.whatsapp.net')
+    // FIX PARA @lid
+    let rawJid = who
+    let realJid = rawJid.replace('@lid', '@s.whatsapp.net')
     let userNum = realJid.split('@')[0]
 
-    // BUSCAR NOMBRE: 1. participants 2. cache 3. numero
+    // SACAR NOMBRE: 1.participants 2.cache 3.numero
     let p = metadata.participants.find(v => v.id.includes(userNum))
     let nombre = p?.name || p?.notify || chat.cacheNombres[userNum] || userNum
 
-    // GUARDAR EN CACHE SI ENTRA
+    // GUARDAR NOMBRE SI ENTRA
     if (m.messageStubType === 27) chat.cacheNombres[userNum] = nombre
-    // BORRAR CACHE SI SALE
+    // BORRAR SI SALE
     if (m.messageStubType === 28 || m.messageStubType === 32) delete chat.cacheNombres[userNum]
 
     let groupName = metadata.subject
@@ -49,25 +50,18 @@ handler.all = async function (m) {
     }
 
     let txt = ''
-    let audioPath = ''
-
-    if (m.messageStubType === 27 && chat.welcome) {
-        txt = replace(sWelcome)
-        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
-    }
-    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
-        txt = replace(sBye)
-        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
-    }
+    if (m.messageStubType === 27 && chat.welcome) txt = replace(sWelcome)
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = replace(sBye)
     if (!txt) return
 
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: [realJid], // MENCION FORZADA
+        mentions: [realJid], // FORZAR MENCION
         contextInfo: { mentionedJid: [realJid] }
     })
 
+    let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
     if (fs.existsSync(audioPath)) {
         await this.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), mimetype: 'audio/mpeg', ptt: false })
     }
