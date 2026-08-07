@@ -19,7 +19,7 @@ handler.all = async function (m) {
     let who = m.messageStubParameters?.[0]
     if (!who) return
 
-    // CONVERTIR @lid A JID REAL
+    // CONVERTIR @lid A JID REAL PARA MENCION Y FOTO
     let realJid = who
     if (who.endsWith('@lid')) {
         try {
@@ -32,25 +32,25 @@ handler.all = async function (m) {
 
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
-    let user = '@' + realJid.split('@')[0]
+    let user = '@' + realJid.split('@')[0] // AQUI VA EL JID REAL PARA MENCIONAR
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    // FOTO DE PERFIL
+    // FOTO DE PERFIL CON JID REAL
     let img
     try {
         let pp = await this.profilePictureUrl(realJid, 'image')
         img = await fetch(pp).then(v => v.buffer())
     } catch {
-        img = { url: 'https://files.evogb.win/wt9HaN.jpg' }
+        img = { url: 'https://files.evogb.win/wt9HaN.jpg' } // foto default fresita
     }
 
     // REEMPLAZAR VARIABLES
     let replace = (txt) => {
         return txt
-       .replace(/@user/g, user)
-       .replace(/@group/g, groupName)
-       .replace(/@count/g, total)
+      .replace(/@user/g, user)
+      .replace(/@group/g, groupName)
+      .replace(/@count/g, total)
     }
 
     let txt = ''
@@ -60,26 +60,26 @@ handler.all = async function (m) {
     if (m.messageStubType === 27) {
         if (chat.welcome === false) return
         txt = replace(chat.sWelcome)
-        audioPath = path.join('./media', `welcome_${m.chat}.mp3`) // SOLO AUDIO DEL GRUPO
+        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
     }
 
     // ===== SALIDA =====
     if (m.messageStubType === 28 || m.messageStubType === 32) {
         if (chat.bye === false) return
         txt = replace(chat.sBye)
-        audioPath = path.join('./media', `bye_${m.chat}.mp3`) // SOLO AUDIO DEL GRUPO
+        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
     }
 
     if (!txt) return
 
-    // MANDAR IMAGEN + TEXTO
+    // MANDAR IMAGEN + TEXTO + MENCION REAL
     await this.sendMessage(m.chat, {
         image: img,
         caption: txt,
-        mentions: [realJid]
+        mentions: [realJid] // MENCIONA BIEN AL USUARIO
     })
 
-    // SOLO MANDAR AUDIO SI EL GRUPO TIENE UNO GUARDADO
+    // AUDIO SOLO SI EL GRUPO TIENE UNO GUARDADO
     if (fs.existsSync(audioPath)) {
         setTimeout(async () => {
             await this.sendMessage(m.chat, {
