@@ -10,13 +10,15 @@ handler.all = async function (m) {
     chat.welcome??= true
     chat.bye??= true
 
+    if (!chat.sWelcome) chat.sWelcome = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos\n"Bienvenid@ a la canasta fresita 💕\nPonte cómodo y disfruta"\n\n> *Fresita dice: Nuevo angelito en el grupo*`
+    if (!chat.sBye) chat.sBye = `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos\n"Nos vemos prontito 💫"\n\n> *Fresita dice: Te vamos a extrañar* 🍓`
+
     let who = m.messageStubParameters?.[0]
     if (!who) return
 
-    // NUCLEAR: Buscar el jid real en participants
-    let metadata = await this.groupMetadata(m.chat).catch(() => {})
+    // BUSCAR JID REAL
+    let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
-
     let participant = metadata.participants.find(p => p.id === who || p.id.includes(who.split('@')[0]))
     let realJid = participant?.id || who.replace('@lid', '@s.whatsapp.net')
     let userNum = realJid.split('@')[0]
@@ -24,41 +26,42 @@ handler.all = async function (m) {
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    // FOTO DEL USUARIO - PRIORIDAD
+    // REEMPLAZAR VARIABLES @user @group @count
+    const replace = (txt) => txt
+       .replace(/@user/g, `@${userNum}`)
+       .replace(/@group/g, groupName)
+       .replace(/@count/g, total)
+
+    // FOTO DEL USUARIO
     let imgBuffer
     try {
-        let ppUrl = await this.profilePictureUrl(realJid, 'image').catch(() => null)
-        let { data } = await axios.get(ppUrl || 'https://files.evogb.win/wt9HaN.jpg', { responseType: 'arraybuffer' })
+        let ppUrl = await this.profilePictureUrl(realJid, 'image')
+        let { data } = await axios.get(ppUrl, { responseType: 'arraybuffer', timeout: 5000 })
         imgBuffer = Buffer.from(data)
     } catch {
         let { data } = await axios.get('https://files.evogb.win/wt9HaN.jpg', { responseType: 'arraybuffer' })
         imgBuffer = Buffer.from(data)
     }
 
-    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó a ${groupName}!*\n\n🍓 *Usuario:* @${userNum}\n🍓 *Somos:* ${total} miembritos\n\n"Bienvenid@ a la canasta fresita 💕"`
-    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita de ${groupName}*\n\n🍓 *Usuario:* @${userNum}\n🍓 *Quedamos:* ${total} miembritos\n"Nos vemos prontito 💫"`
-
     let txt = ''
     let audioPath = ''
 
     if (m.messageStubType === 27 && chat.welcome) {
-        txt = sWelcome
+        txt = replace(chat.sWelcome) // AQUI SE REEMPLAZA
         audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
     }
     if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
-        txt = sBye
+        txt = replace(chat.sBye) // AQUI SE REEMPLAZA
         audioPath = path.join('./media', `bye_${m.chat}.mp3`)
     }
     if (!txt) return
 
-    // ENVIAR CON 2 FORMAS DE MENCION - LA QUE ME DISTE
+    // ENVIAR CON DOBLE MENCION
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: [realJid], // forma 1
-        contextInfo: {
-            mentionedJid: [realJid] // forma 2
-        }
+        mentions: [realJid],
+        contextInfo: { mentionedJid: [realJid] }
     })
 
     if (fs.existsSync(audioPath)) {
