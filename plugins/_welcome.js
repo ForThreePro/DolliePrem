@@ -8,7 +8,7 @@ handler.all = async function (m) {
     let chat = global.db.data.chats[m.chat] || {}
     chat.welcome??= true
     chat.bye??= true
-    chat.cacheNombres??= {}
+    chat.cacheNombres??= {} // PARA GUARDAR NOMBRES
 
     let who = m.messageStubParameters?.[0]
     if (!who) return
@@ -16,41 +16,28 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
 
-    let rawJid = who
-    let realJid = rawJid.replace('@lid', '@s.whatsapp.net')
+    // FIX NUCLEAR: CONVERTIR @lid A @s.whatsapp.net SIEMPRE
+    let realJid = who.replace('@lid', '@s.whatsapp.net')
     let userNum = realJid.split('@')[0]
 
-    // 1. BUSCAR NOMBRE EN PARTICIPANTS
+    // BUSCAR NOMBRE: 1. participants 2. cache 3. numero
     let p = metadata.participants.find(v => v.id.includes(userNum))
-    let nombre = p?.name || p?.notify || p?.short || userNum
+    let nombre = p?.name || p?.notify || chat.cacheNombres[userNum] || userNum
 
-    // 2. SI NO ESTA, BUSCAR EN CACHE
-    if (!p && chat.cacheNombres[userNum]) {
-        nombre = chat.cacheNombres[userNum]
-    }
-
-    // 3. SI NO ESTA EN CACHE, FORZAR CON GETCONTACT
-    if (!p &&!chat.cacheNombres[userNum]) {
-        try {
-            let contact = await this.getContact(realJid)
-            nombre = contact?.name || contact?.notify || userNum
-        } catch {}
-    }
-
-    // GUARDAR EN CACHE CUANDO ENTRA
-    if (m.messageStubType === 27) {
-        chat.cacheNombres[userNum] = nombre
-    }
-    if (m.messageStubType!== 27) delete chat.cacheNombres[userNum]
+    // GUARDAR EN CACHE SI ENTRA
+    if (m.messageStubType === 27) chat.cacheNombres[userNum] = nombre
+    // BORRAR CACHE SI SALE
+    if (m.messageStubType === 28 || m.messageStubType === 32) delete chat.cacheNombres[userNum]
 
     let groupName = metadata.subject
     let total = metadata.participants.length
 
-    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count`
-    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count`
+    let sWelcome = chat.sWelcome || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n✨ *¡Nueva fresita llegó!*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Total:* @count miembritos`
+    let sBye = chat.sBye || `🍓━━━━━━━━━━ *FRESITA BOT* ━━━━━━━━━━🍓\n\n💫 *Se fue una fresita*\n\n🍓 *Usuario:* @user\n🍓 *Grupo:* @group\n🍓 *Quedamos:* @count miembritos`
 
     const replace = (txt) => txt.replace(/@user/g, `@${nombre}`).replace(/@group/g, groupName).replace(/@count/g, total)
 
+    // FOTO GRUPO
     let imgBuffer
     try {
         let ppUrl = await this.profilePictureUrl(m.chat, 'image')
@@ -62,23 +49,25 @@ handler.all = async function (m) {
     }
 
     let txt = ''
-    if (m.messageStubType === 27 && chat.welcome) txt = replace(sWelcome)
-    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = replace(sBye)
+    let audioPath = ''
+
+    if (m.messageStubType === 27 && chat.welcome) {
+        txt = replace(sWelcome)
+        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
+    }
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
+        txt = replace(sBye)
+        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
+    }
     if (!txt) return
 
-    // FORZAR MENCION SIEMPRE
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: [realJid], // SIEMPRE MENCIONA
-        contextInfo: {
-            mentionedJid: [realJid],
-            forwardingScore: 999,
-            isForwarded: true
-        }
+        mentions: [realJid], // MENCION FORZADA
+        contextInfo: { mentionedJid: [realJid] }
     })
 
-    let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
     if (fs.existsSync(audioPath)) {
         await this.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), mimetype: 'audio/mpeg', ptt: false })
     }
