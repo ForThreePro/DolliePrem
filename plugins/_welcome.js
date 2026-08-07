@@ -15,15 +15,19 @@ handler.all = async function (m) {
     let metadata = await this.groupMetadata(m.chat).catch(() => null)
     if (!metadata) return
 
-    // FIX DEFINITIVO PARA NUMERO RANDOM
+    // FIX CLAVE: GUARDAR JID ANTES DE QUE LO BOTEN
     let realJid = who
     if (who.endsWith('@lid')) {
-        // Buscamos el numero real en participants
         let p = metadata.participants.find(v => v.id.includes(who.split('@')[0]))
         realJid = p?.id || who.replace('@lid', '@s.whatsapp.net')
     }
-    let userNum = realJid.split('@')[0]
 
+    // SI ES BYE/KICK Y YA NO ESTA EN PARTICIPANTS, USAMOS EL JID TAL CUAL
+    if ((m.messageStubType === 28 || m.messageStubType === 32) &&!metadata.participants.find(p => p.id === realJid)) {
+        realJid = who.replace('@lid', '@s.whatsapp.net')
+    }
+
+    let userNum = realJid.split('@')[0]
     let groupName = metadata.subject
     let total = metadata.participants.length
 
@@ -32,7 +36,7 @@ handler.all = async function (m) {
 
     const replace = (txt) => txt.replace(/@user/g, `@${userNum}`).replace(/@group/g, groupName).replace(/@count/g, total)
 
-    // FOTO DEL GRUPO - PORQUE LA DEL USER YA NO DEJA WA
+    // FOTO GRUPO
     let imgBuffer
     try {
         let ppUrl = await this.profilePictureUrl(m.chat, 'image')
@@ -44,18 +48,25 @@ handler.all = async function (m) {
     }
 
     let txt = ''
-    if (m.messageStubType === 27 && chat.welcome) txt = replace(sWelcome)
-    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) txt = replace(sBye)
+    let audioPath = ''
+
+    if (m.messageStubType === 27 && chat.welcome) {
+        txt = replace(sWelcome)
+        audioPath = path.join('./media', `welcome_${m.chat}.mp3`)
+    }
+    if ((m.messageStubType === 28 || m.messageStubType === 32) && chat.bye) {
+        txt = replace(sBye)
+        audioPath = path.join('./media', `bye_${m.chat}.mp3`)
+    }
     if (!txt) return
 
     await this.sendMessage(m.chat, {
         image: imgBuffer,
         caption: txt,
-        mentions: [realJid],
-        contextInfo: { mentionedJid: [realJid] }
+        mentions: [realJid], // AQUI ESTA LA MENCION
+        contextInfo: { mentionedJid: [realJid] } // Y AQUI TAMBIEN
     })
 
-    let audioPath = path.join('./media', `${m.messageStubType === 27? 'welcome' : 'bye'}_${m.chat}.mp3`)
     if (fs.existsSync(audioPath)) {
         await this.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), mimetype: 'audio/mpeg', ptt: false })
     }
